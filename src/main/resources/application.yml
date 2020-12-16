@@ -1,0 +1,30 @@
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://service-discovery:8761/eureka/
+keycloak:
+  auth-server-url: https://login.archi-lab.io/auth
+  bearer-only: true
+  cors: false
+  principal-attribute: preferred_username
+  realm: archilab
+  resource: prox-professor-profile-service #Not available yet
+server:
+  port: 9005
+  forward-headers-strategy: native
+spring:
+  application:
+    name: professor-profile-service
+  datasource:
+    password: professor-profile-service
+    url: jdbc:postgresql://professor-profile-db:5432/professor-profile-db
+    username: professor-profile-service
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true

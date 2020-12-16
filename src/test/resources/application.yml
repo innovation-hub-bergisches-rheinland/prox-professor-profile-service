@@ -1,0 +1,33 @@
+eureka:
+  client:
+    enabled: false
+tagRecommendationCalculation:
+  resultCount: 15
+# TODO Keycloak Config necessary?
+keycloak:
+  auth-server-url: https://login.archi-lab.io/auth
+  bearer-only: true
+  cors: false
+  principal-attribute: preferred_username
+  realm: archilab
+  resource: prox-professor-profile-service
+server:
+  port: 9005
+  forward-headers-strategy: native
+spring:
+  application:
+    name: professor-profile-service
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE;MODE=PostgreSQL
+    username: sa
+  jpa:
+    database-platform: org.hibernate.dialect.H2Dialect
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        jdbc:
+          lob:
+            non_contextual_creation: true
+  flyway:
+    enabled: false
