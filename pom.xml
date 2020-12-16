@@ -17,7 +17,8 @@
   <properties>
     <changelist>-SNAPSHOT</changelist>
     <docker.image.prefix>docker.nexus.archi-lab.io/ihbr</docker.image.prefix>
-    <dockerfile-maven-plugin.version>1.4.13</dockerfile-maven-plugin.version>
+    <!-- Downgraded version due to: https://github.com/spotify/dockerfile-maven/issues/329 -->
+    <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
     <frontend-maven-plugin.nodeVersion>v15.0.1</frontend-maven-plugin.nodeVersion>
     <frontend-maven-plugin.version>1.10.3</frontend-maven-plugin.version>
     <java.version>11</java.version>
