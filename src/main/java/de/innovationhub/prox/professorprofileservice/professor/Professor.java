@@ -1,27 +1,29 @@
 package de.innovationhub.prox.professorprofileservice.professor;
 
-import java.net.URL;
-import java.util.UUID;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import de.innovationhub.prox.professorprofileservice.core.AbstractEntity;
+import java.util.List;
+import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
 import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+@EqualsAndHashCode(callSuper = true)
 @Entity
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
+@AllArgsConstructor
 @Data
-public class Professor {
-  @Id private UUID id;
-  @ManyToOne private Faculty faculty;
-  private String room;
-  private String consultationHour;
-  private String email;
-  private String telephone;
-  private URL homepage;
-
-  public Professor(UUID id) {
-    this.id = id;
-  }
+public class Professor extends AbstractEntity {
+  private String name;
+  @JsonIgnore @ManyToOne private Faculty faculty;
+  @Embedded private ContactInformation contactInformation;
+  @ElementCollection private List<ResearchSubject> researchSubjects;
+  @ElementCollection private List<Publication> publications;
+  @Lob private String vita;
 }
