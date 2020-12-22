@@ -1,6 +1,11 @@
 package de.innovationhub.prox.professorprofileservice.professor;
 
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+
 import java.util.UUID;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.Sort;
@@ -23,14 +28,40 @@ public class FacultyController {
   }
 
   @GetMapping(value = "/faculties", produces = MediaTypes.HAL_JSON_VALUE)
-  public ResponseEntity<CollectionModel<Faculty>> getALlFaculties(Sort sort) {
-    return ResponseEntity.ok(CollectionModel.of(facultyRepository.findAll(sort)));
+  public ResponseEntity<CollectionModel<EntityModel<Faculty>>> getALlFaculties(Sort sort) {
+    var faculties =
+        StreamSupport.stream(facultyRepository.findAll(sort).spliterator(), false)
+            .map(
+                (faculty -> {
+                  var entityModel = EntityModel.of(faculty);
+                  try {
+                    entityModel.add(
+                        linkTo(methodOn(FacultyController.class).getFaculty(faculty.getId()))
+                            .withSelfRel());
+                    entityModel.add(
+                        linkTo(methodOn(FacultyController.class).getFaculty(faculty.getId()))
+                            .withRel("faculty"));
+                  } catch (NotFoundException e) {
+                    e.printStackTrace();
+                  }
+                  return entityModel;
+                }))
+            .collect(Collectors.toList());
+
+    CollectionModel<EntityModel<Faculty>> collectionModel = CollectionModel.of(faculties);
+    collectionModel.add(
+        linkTo(methodOn(FacultyController.class).getALlFaculties(sort)).withSelfRel());
+
+    return ResponseEntity.ok(collectionModel);
   }
 
   @GetMapping(value = "faculties/{id}", produces = MediaTypes.HAL_JSON_VALUE)
   public ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable("id") UUID id)
       throws NotFoundException {
-    return ResponseEntity.ok(
-        EntityModel.of(facultyRepository.findById(id).orElseThrow(NotFoundException::new)));
+    var faculty =
+        EntityModel.of(facultyRepository.findById(id).orElseThrow(NotFoundException::new));
+    faculty.add(linkTo(methodOn(FacultyController.class).getFaculty(id)).withSelfRel());
+    faculty.add(linkTo(methodOn(FacultyController.class).getFaculty(id)).withRel("faculty"));
+    return ResponseEntity.ok(faculty);
   }
 }
