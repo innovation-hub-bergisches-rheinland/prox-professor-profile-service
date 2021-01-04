@@ -9,10 +9,12 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import de.innovationhub.prox.professorprofileservice.config.KeycloakConfig;
 import de.innovationhub.prox.professorprofileservice.config.SecurityConfig;
+import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
+import javax.imageio.ImageIO;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.keycloak.adapters.springboot.KeycloakAutoConfiguration;
@@ -21,7 +23,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = ProfessorController.class)
@@ -31,8 +35,11 @@ class ProfessorControllerTest {
 
   private static final String PROFESSORS_URL = "/professors";
   private static final String PROFESSORS_ID_URL = "/professors/{id}";
+  private static final String PROFESSORS_ID_IMAGE_URL = "/professors/{id}/image";
 
   @Autowired MockMvc mockMvc;
+
+  @Autowired ResourceLoader resourceLoader;
 
   @MockBean FacultyRepository facultyRepository;
 
@@ -45,6 +52,7 @@ class ProfessorControllerTest {
             "Prof. Dr. Xavier Tester",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(),
+            new ProfileImage(),
             Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
             Arrays.asList(
                 new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
@@ -86,6 +94,7 @@ class ProfessorControllerTest {
             "Prof. Dr. Xavier Tester",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(),
+            new ProfileImage(),
             Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
             Arrays.asList(
                 new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
@@ -114,7 +123,63 @@ class ProfessorControllerTest {
   }
 
   @Test
-  void getProfessorImage() {
-    // TODO
+  void getProfessorImage() throws Exception {
+    var professor =
+        new Professor(
+            "Prof. Dr. Xavier Tester",
+            new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
+            new ContactInformation(),
+            new ProfileImage(),
+            Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
+            Arrays.asList(
+                new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
+            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+
+    when(professorRepository.findById(any(UUID.class))).thenReturn(Optional.of(professor));
+
+    mockMvc
+        .perform(get(PROFESSORS_ID_IMAGE_URL, professor.getId()).accept(MediaTypes.HAL_JSON_VALUE))
+        .andDo(print())
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void postProfessorImage() throws Exception {
+    var professor =
+        new Professor(
+            "Prof. Dr. Xavier Tester",
+            new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
+            new ContactInformation(),
+            new ProfileImage(),
+            Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
+            Arrays.asList(
+                new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
+            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+
+    when(professorRepository.findById(any(UUID.class))).thenReturn(Optional.of(professor));
+
+    mockMvc
+        .perform(
+            multipart(PROFESSORS_ID_IMAGE_URL, professor.getId())
+                .file(
+                    new MockMultipartFile(
+                        "image",
+                        resourceLoader
+                            .getResource("classpath:/img/blank-profile-picture.png")
+                            .getInputStream())))
+        .andDo(print())
+        .andExpect(status().isOk());
+
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    var image =
+        ImageIO.read(
+            resourceLoader
+                .getResource("classpath:/img/blank-profile-picture.png")
+                .getInputStream());
+    ImageIO.write(image, "png", byteArrayOutputStream);
+
+    assertArrayEquals(
+        professorRepository.findById(professor.getId()).get().getProfileImage().getData(),
+        byteArrayOutputStream.toByteArray());
   }
 }
