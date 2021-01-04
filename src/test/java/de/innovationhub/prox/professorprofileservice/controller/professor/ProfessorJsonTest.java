@@ -1,7 +1,13 @@
-package de.innovationhub.prox.professorprofileservice.professor;
+package de.innovationhub.prox.professorprofileservice.controller.professor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ContactInformation;
+import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
+import de.innovationhub.prox.professorprofileservice.domain.professor.Publication;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
 import java.net.URI;
 import java.util.Arrays;
 import java.util.UUID;

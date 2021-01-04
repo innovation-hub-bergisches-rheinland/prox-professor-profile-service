@@ -1,5 +1,10 @@
-package de.innovationhub.prox.professorprofileservice.professor;
+package de.innovationhub.prox.professorprofileservice.controller;
 
+import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
+import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
+import de.innovationhub.prox.professorprofileservice.repository.FacultyRepository;
+import de.innovationhub.prox.professorprofileservice.repository.ProfessorRepository;
 import de.innovationhub.prox.professorprofileservice.util.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.util.ProfessorRepresentationModelAssembler;
 import java.io.ByteArrayInputStream;
@@ -16,6 +21,7 @@ import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -105,8 +111,16 @@ public class ProfessorController {
   public ResponseEntity<EntityModel<Professor>> updateProfessor(
       @PathVariable UUID id, @RequestBody Professor professor)
       throws NotFoundException, IOException {
-    // TODO
-    return saveProfessor(id, professor);
+    if (professor.getId() != id) {
+      throw new NotImplementedException();
+    }
+    if (professorRepository.existsById(professor.getId())) {
+      return ResponseEntity.ok(
+          professorRepresentationModelAssembler.toModel(professorRepository.save(professor)));
+    } else {
+      return ResponseEntity.status(HttpStatus.CREATED)
+          .body(professorRepresentationModelAssembler.toModel(professorRepository.save(professor)));
+    }
   }
 
   @GetMapping(value = "/professors/{id}/image")

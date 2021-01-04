@@ -1,14 +1,13 @@
-package de.innovationhub.prox.professorprofileservice.professor;
+package de.innovationhub.prox.professorprofileservice.domain.professor;
 
 import java.net.URL;
 import javax.persistence.Embeddable;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 @Embeddable
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 @AllArgsConstructor
 @Data
 public class ContactInformation {

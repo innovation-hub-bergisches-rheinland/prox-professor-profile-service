@@ -1,8 +1,10 @@
-package de.innovationhub.prox.professorprofileservice.professor;
+package de.innovationhub.prox.professorprofileservice.controller;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
+import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
+import de.innovationhub.prox.professorprofileservice.repository.FacultyRepository;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;

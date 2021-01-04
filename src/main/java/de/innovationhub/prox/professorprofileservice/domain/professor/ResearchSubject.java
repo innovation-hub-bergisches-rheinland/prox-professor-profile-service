@@ -1,4 +1,4 @@
-package de.innovationhub.prox.professorprofileservice.professor;
+package de.innovationhub.prox.professorprofileservice.domain.professor;
 
 import javax.persistence.Embeddable;
 import lombok.AccessLevel;

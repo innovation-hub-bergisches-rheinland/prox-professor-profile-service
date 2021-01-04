@@ -3,8 +3,8 @@ package de.innovationhub.prox.professorprofileservice.util;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import de.innovationhub.prox.professorprofileservice.professor.Faculty;
-import de.innovationhub.prox.professorprofileservice.professor.FacultyController;
+import de.innovationhub.prox.professorprofileservice.controller.FacultyController;
+import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.CollectionModel;

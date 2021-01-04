@@ -1,4 +1,4 @@
-package de.innovationhub.prox.professorprofileservice.professor;
+package de.innovationhub.prox.professorprofileservice.controller.professor;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -9,6 +9,15 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import de.innovationhub.prox.professorprofileservice.config.KeycloakConfig;
 import de.innovationhub.prox.professorprofileservice.config.SecurityConfig;
+import de.innovationhub.prox.professorprofileservice.controller.ProfessorController;
+import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ContactInformation;
+import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
+import de.innovationhub.prox.professorprofileservice.domain.professor.Publication;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
+import de.innovationhub.prox.professorprofileservice.repository.FacultyRepository;
+import de.innovationhub.prox.professorprofileservice.repository.ProfessorRepository;
 import de.innovationhub.prox.professorprofileservice.util.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.util.ProfessorRepresentationModelAssembler;
 import java.io.ByteArrayOutputStream;

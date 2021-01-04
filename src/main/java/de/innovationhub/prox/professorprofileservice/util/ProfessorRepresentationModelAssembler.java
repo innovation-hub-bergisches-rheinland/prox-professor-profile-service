@@ -3,9 +3,9 @@ package de.innovationhub.prox.professorprofileservice.util;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import de.innovationhub.prox.professorprofileservice.professor.FacultyController;
-import de.innovationhub.prox.professorprofileservice.professor.Professor;
-import de.innovationhub.prox.professorprofileservice.professor.ProfessorController;
+import de.innovationhub.prox.professorprofileservice.controller.FacultyController;
+import de.innovationhub.prox.professorprofileservice.controller.ProfessorController;
+import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import java.io.IOException;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.Sort;
