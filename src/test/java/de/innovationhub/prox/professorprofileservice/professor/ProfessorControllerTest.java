@@ -9,6 +9,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import de.innovationhub.prox.professorprofileservice.config.KeycloakConfig;
 import de.innovationhub.prox.professorprofileservice.config.SecurityConfig;
+import de.innovationhub.prox.professorprofileservice.util.FacultyRepresentationModelAssembler;
+import de.innovationhub.prox.professorprofileservice.util.ProfessorRepresentationModelAssembler;
 import java.io.ByteArrayOutputStream;
 import java.util.Arrays;
 import java.util.Collections;
@@ -30,12 +32,19 @@ import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = ProfessorController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import({SecurityConfig.class, KeycloakAutoConfiguration.class, KeycloakConfig.class})
+@Import({
+  SecurityConfig.class,
+  KeycloakAutoConfiguration.class,
+  KeycloakConfig.class,
+  ProfessorRepresentationModelAssembler.class,
+  FacultyRepresentationModelAssembler.class
+})
 class ProfessorControllerTest {
 
   private static final String PROFESSORS_URL = "/professors";
   private static final String PROFESSORS_ID_URL = "/professors/{id}";
   private static final String PROFESSORS_ID_IMAGE_URL = "/professors/{id}/image";
+  private static final String PROFESSOR_ID_FACULTY_URL = "/professors/{id}/faculty";
 
   @Autowired MockMvc mockMvc;
 
@@ -181,5 +190,32 @@ class ProfessorControllerTest {
     assertArrayEquals(
         professorRepository.findById(professor.getId()).get().getProfileImage().getData(),
         byteArrayOutputStream.toByteArray());
+  }
+
+  @Test
+  void getProfessorFaculty() throws Exception {
+    var professor =
+        new Professor(
+            "Prof. Dr. Xavier Tester",
+            new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
+            new ContactInformation(),
+            new ProfileImage(),
+            Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
+            Arrays.asList(
+                new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
+            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+
+    when(professorRepository.findById(any(UUID.class))).thenReturn(Optional.of(professor));
+
+    Faculty faculty = professor.getFaculty();
+
+    mockMvc
+        .perform(get(PROFESSOR_ID_FACULTY_URL, professor.getId()))
+        .andDo(print())
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.id", Matchers.is(faculty.getId().toString())))
+        .andExpect(jsonPath("$.abbreviation", Matchers.is(faculty.getAbbreviation())))
+        .andExpect(jsonPath("$.name", Matchers.is(faculty.getName())));
+    ;
   }
 }

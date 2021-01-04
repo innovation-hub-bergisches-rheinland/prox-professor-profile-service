@@ -1,7 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.professor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
 
 import java.net.URI;
 import java.util.Arrays;

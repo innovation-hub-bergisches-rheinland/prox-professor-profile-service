@@ -1,18 +1,15 @@
 package de.innovationhub.prox.professorprofileservice.professor;
 
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
-
+import de.innovationhub.prox.professorprofileservice.util.FacultyRepresentationModelAssembler;
+import de.innovationhub.prox.professorprofileservice.util.ProfessorRepresentationModelAssembler;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLConnection;
-import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 import javax.imageio.ImageIO;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
@@ -24,6 +21,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -33,77 +32,81 @@ public class ProfessorController {
 
   ProfessorRepository professorRepository;
   ResourceLoader resourceLoader;
+  ProfessorRepresentationModelAssembler professorRepresentationModelAssembler;
+  FacultyRepresentationModelAssembler facultyRepresentationModelAssembler;
 
   @Autowired
   public ProfessorController(
       ProfessorRepository professorRepository,
       FacultyRepository facultyRepository,
-      ResourceLoader resourceLoader) {
+      ResourceLoader resourceLoader,
+      ProfessorRepresentationModelAssembler professorRepresentationModelAssembler,
+      FacultyRepresentationModelAssembler facultyRepresentationModelAssembler) {
     this.professorRepository = professorRepository;
     this.resourceLoader = resourceLoader;
+    this.professorRepresentationModelAssembler = professorRepresentationModelAssembler;
+    this.facultyRepresentationModelAssembler = facultyRepresentationModelAssembler;
   }
 
   @GetMapping("/professors")
   public ResponseEntity<CollectionModel<EntityModel<Professor>>> getAllProfessors(Sort sort) {
-    var professors =
-        StreamSupport.stream(professorRepository.findAll().spliterator(), false)
-            .map(
-                professor -> {
-                  var entityModel = EntityModel.of(professor);
-                  try {
-                    entityModel.add(
-                        linkTo(methodOn(ProfessorController.class).getProfessor(professor.getId()))
-                            .withSelfRel());
-                    entityModel.add(
-                        linkTo(methodOn(ProfessorController.class).getProfessor(professor.getId()))
-                            .withRel("professor"));
-                    entityModel.add(
-                        linkTo(
-                                methodOn(ProfessorController.class)
-                                    .getProfessorImage(professor.getId()))
-                            .withRel("image"));
-                    var faculty = Optional.ofNullable(professor.getFaculty());
-                    if (faculty.isPresent()) {
-                      entityModel.add(
-                          linkTo(
-                                  methodOn(FacultyController.class)
-                                      .getFaculty(faculty.get().getId()))
-                              .withRel("faculty"));
-                    }
-                  } catch (NotFoundException | IOException e) {
-                    e.printStackTrace();
-                  }
-                  return entityModel;
-                })
-            .collect(Collectors.toList());
-
-    var collectionModel = CollectionModel.of(professors);
-    collectionModel.add(
-        linkTo(methodOn(ProfessorController.class).getAllProfessors(sort)).withSelfRel());
-
+    var collectionModel =
+        professorRepresentationModelAssembler.toCollectionModel(professorRepository.findAll());
     return ResponseEntity.ok(collectionModel);
   }
 
   @GetMapping("/professors/{id}")
   public ResponseEntity<EntityModel<Professor>> getProfessor(@PathVariable UUID id)
       throws NotFoundException, IOException {
-    var professor =
-        EntityModel.of(professorRepository.findById(id).orElseThrow(NotFoundException::new));
-    professor.add(linkTo(methodOn(ProfessorController.class).getProfessor(id)).withSelfRel());
-    professor.add(
-        linkTo(methodOn(ProfessorController.class).getProfessor(id)).withRel("professor"));
-    professor.add(
-        linkTo(methodOn(ProfessorController.class).getProfessorImage(id)).withRel("image"));
-    var content = Optional.ofNullable(professor.getContent());
-    if (content.isPresent()) {
-      var faculty = Optional.ofNullable(content.get().getFaculty());
-      if (faculty.isPresent()) {
-        professor.add(
-            linkTo(methodOn(FacultyController.class).getFaculty(faculty.get().getId()))
-                .withRel("faculty"));
-      }
+    var professor = professorRepository.findById(id).orElseThrow(NotFoundException::new);
+    return ResponseEntity.ok(professorRepresentationModelAssembler.toModel(professor));
+  }
+
+  @GetMapping(value = "/professors/{id}/faculty")
+  public ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable UUID id)
+      throws NotFoundException {
+    var professor = professorRepository.findById(id).orElseThrow(NotFoundException::new);
+    var faculty = professor.getFaculty();
+    if (faculty != null) {
+      return ResponseEntity.ok(facultyRepresentationModelAssembler.toModel(faculty));
     }
-    return ResponseEntity.ok(professor);
+    throw new NotFoundException();
+  }
+
+  // TODO Link instead of full entity
+  /*@PostMapping(value = "/professors/{id}/faculty", consumes = "text/uri-list")
+  public ResponseEntity<EntityModel<Faculty>> saveFaculty(@PathVariable UUID id, @RequestBody Resource)
+      throws NotFoundException {
+    var optProfessor = professorRepository.findById(id);
+    if(optProfessor.isPresent()) {
+      var professor = optProfessor.get();
+      professor.setFaculty(faculty);
+      professorRepository.save(professor);
+      var entityModel = EntityModel.of(faculty);
+      entityModel.add(linkTo(methodOn(ProfessorController.class).getFaculty(id)).withSelfRel());
+      entityModel.add(linkTo(methodOn(FacultyController.class).getFaculty(faculty.getId())).withRel("faculty"));
+      return ResponseEntity.ok(entityModel);
+    }
+    throw new NotFoundException();
+  }*/
+
+  @PostMapping(value = "/professors/{id}")
+  public ResponseEntity<EntityModel<Professor>> saveProfessor(
+      @PathVariable UUID id, @RequestBody Professor professor) {
+    if (professor.getId() != id) {
+      throw new NotImplementedException();
+    }
+    var entityModel =
+        professorRepresentationModelAssembler.toModel(professorRepository.save(professor));
+    return ResponseEntity.ok(entityModel);
+  }
+
+  @PutMapping(value = "/professors/{id}")
+  public ResponseEntity<EntityModel<Professor>> updateProfessor(
+      @PathVariable UUID id, @RequestBody Professor professor)
+      throws NotFoundException, IOException {
+    // TODO
+    return saveProfessor(id, professor);
   }
 
   @GetMapping(value = "/professors/{id}/image")
