@@ -37,6 +37,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProfessorController {
 
   ProfessorRepository professorRepository;
+  FacultyRepository facultyRepository;
   ResourceLoader resourceLoader;
   ProfessorRepresentationModelAssembler professorRepresentationModelAssembler;
   FacultyRepresentationModelAssembler facultyRepresentationModelAssembler;
@@ -49,6 +50,7 @@ public class ProfessorController {
       ProfessorRepresentationModelAssembler professorRepresentationModelAssembler,
       FacultyRepresentationModelAssembler facultyRepresentationModelAssembler) {
     this.professorRepository = professorRepository;
+    this.facultyRepository = facultyRepository;
     this.resourceLoader = resourceLoader;
     this.professorRepresentationModelAssembler = professorRepresentationModelAssembler;
     this.facultyRepresentationModelAssembler = facultyRepresentationModelAssembler;
@@ -63,7 +65,7 @@ public class ProfessorController {
 
   @GetMapping("/professors/{id}")
   public ResponseEntity<EntityModel<Professor>> getProfessor(@PathVariable UUID id)
-      throws NotFoundException, IOException {
+      throws NotFoundException {
     var professor = professorRepository.findById(id).orElseThrow(NotFoundException::new);
     return ResponseEntity.ok(professorRepresentationModelAssembler.toModel(professor));
   }
@@ -79,22 +81,23 @@ public class ProfessorController {
     throw new NotFoundException();
   }
 
-  // TODO Link instead of full entity
-  /*@PostMapping(value = "/professors/{id}/faculty", consumes = "text/uri-list")
-  public ResponseEntity<EntityModel<Faculty>> saveFaculty(@PathVariable UUID id, @RequestBody Resource)
-      throws NotFoundException {
+  @PutMapping(value = "/professors/{id}/faculty", consumes = MediaType.TEXT_PLAIN_VALUE)
+  public ResponseEntity<EntityModel<Faculty>> saveFaculty(
+      @PathVariable UUID id, @RequestBody String facultyId) throws NotFoundException {
     var optProfessor = professorRepository.findById(id);
-    if(optProfessor.isPresent()) {
-      var professor = optProfessor.get();
-      professor.setFaculty(faculty);
-      professorRepository.save(professor);
-      var entityModel = EntityModel.of(faculty);
-      entityModel.add(linkTo(methodOn(ProfessorController.class).getFaculty(id)).withSelfRel());
-      entityModel.add(linkTo(methodOn(FacultyController.class).getFaculty(faculty.getId())).withRel("faculty"));
-      return ResponseEntity.ok(entityModel);
+    try {
+      var faculty = facultyRepository.findById(UUID.fromString(facultyId));
+      if (optProfessor.isPresent() && faculty.isPresent()) {
+        var professor = optProfessor.get();
+        professor.setFaculty(faculty.get());
+        professorRepository.save(professor);
+        return ResponseEntity.ok(facultyRepresentationModelAssembler.toModel(faculty.get()));
+      }
+    } catch (IllegalArgumentException e) {
+      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
     throw new NotFoundException();
-  }*/
+  }
 
   @PostMapping(value = "/professors/{id}")
   public ResponseEntity<EntityModel<Professor>> saveProfessor(
@@ -109,8 +112,7 @@ public class ProfessorController {
 
   @PutMapping(value = "/professors/{id}")
   public ResponseEntity<EntityModel<Professor>> updateProfessor(
-      @PathVariable UUID id, @RequestBody Professor professor)
-      throws NotFoundException, IOException {
+      @PathVariable UUID id, @RequestBody Professor professor) {
     if (professor.getId() != id) {
       throw new NotImplementedException();
     }
@@ -147,7 +149,7 @@ public class ProfessorController {
   }
 
   @PostMapping(value = "/professors/{id}/image")
-  public ResponseEntity<?> postProfessorImage(
+  public ResponseEntity<byte[]> postProfessorImage(
       @PathVariable UUID id, @RequestParam("image") MultipartFile image)
       throws IOException, NotFoundException {
     var optProfessor = professorRepository.findById(id);
