@@ -68,6 +68,8 @@ class ProfessorControllerTest {
     var professor =
         new Professor(
             "Prof. Dr. Xavier Tester",
+            "2010",
+            "IoT",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(),
             new ProfileImage(),
@@ -110,6 +112,8 @@ class ProfessorControllerTest {
     var professor =
         new Professor(
             "Prof. Dr. Xavier Tester",
+            "2010",
+            "IoT",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(),
             new ProfileImage(),
@@ -145,6 +149,8 @@ class ProfessorControllerTest {
     var professor =
         new Professor(
             "Prof. Dr. Xavier Tester",
+            "2010",
+            "IoT",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(),
             new ProfileImage(),
@@ -166,6 +172,8 @@ class ProfessorControllerTest {
     var professor =
         new Professor(
             "Prof. Dr. Xavier Tester",
+            "2010",
+            "IoT",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(),
             new ProfileImage(),
@@ -206,6 +214,8 @@ class ProfessorControllerTest {
     var professor =
         new Professor(
             "Prof. Dr. Xavier Tester",
+            "2010",
+            "IoT",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(),
             new ProfileImage(),
@@ -232,6 +242,8 @@ class ProfessorControllerTest {
     var professor =
         new Professor(
             "Prof. Dr. Xavier Tester",
+            "2010",
+            "IoT",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(),
             new ProfileImage(),

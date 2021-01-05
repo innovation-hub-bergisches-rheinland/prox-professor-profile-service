@@ -32,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class ProfessorController {
@@ -66,19 +67,29 @@ public class ProfessorController {
   @GetMapping("/professors/{id}")
   public ResponseEntity<EntityModel<Professor>> getProfessor(@PathVariable UUID id)
       throws NotFoundException {
-    var professor = professorRepository.findById(id).orElseThrow(NotFoundException::new);
+    var professor =
+        professorRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find professor"));
     return ResponseEntity.ok(professorRepresentationModelAssembler.toModel(professor));
   }
 
   @GetMapping(value = "/professors/{id}/faculty")
   public ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable UUID id)
       throws NotFoundException {
-    var professor = professorRepository.findById(id).orElseThrow(NotFoundException::new);
+    var professor =
+        professorRepository
+            .findById(id)
+            .orElseThrow(
+                () ->
+                    new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find professor"));
     var faculty = professor.getFaculty();
     if (faculty != null) {
       return ResponseEntity.ok(facultyRepresentationModelAssembler.toModel(faculty));
     }
-    throw new NotFoundException();
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find faculty");
   }
 
   @PutMapping(value = "/professors/{id}/faculty", consumes = MediaType.TEXT_PLAIN_VALUE)
@@ -96,7 +107,7 @@ public class ProfessorController {
     } catch (IllegalArgumentException e) {
       return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
-    throw new NotFoundException();
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find professor");
   }
 
   @PostMapping(value = "/professors")
@@ -121,7 +132,7 @@ public class ProfessorController {
     }
   }
 
-  @GetMapping(value = "/professors/{id}/image")
+  @GetMapping(value = "/professors/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
   public ResponseEntity<byte[]> getProfessorImage(@PathVariable UUID id)
       throws IOException, NotFoundException {
     var optProfessor = professorRepository.findById(id);
@@ -141,7 +152,7 @@ public class ProfessorController {
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(data);
       }
     }
-    throw new NotFoundException();
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find professor");
   }
 
   @PostMapping(value = "/professors/{id}/image")
@@ -163,6 +174,6 @@ public class ProfessorController {
         }
       }
     }
-    throw new NotFoundException();
+    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find professor");
   }
 }

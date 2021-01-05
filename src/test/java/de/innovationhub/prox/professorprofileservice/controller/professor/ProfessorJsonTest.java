@@ -28,6 +28,8 @@ class ProfessorJsonTest {
     var professor =
         new Professor(
             "Prof. Dr. Xavier Tester",
+            "2010",
+            "IoT",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(
                 "2.100",

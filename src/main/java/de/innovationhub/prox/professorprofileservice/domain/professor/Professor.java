@@ -22,6 +22,8 @@ import lombok.NoArgsConstructor;
 @Data
 public class Professor extends AbstractEntity {
   private String name;
+  private String affiliation;
+  private String mainSubject;
   @JsonIgnore @ManyToOne private Faculty faculty;
   @Embedded private ContactInformation contactInformation;
   @Embedded private ProfileImage profileImage;
