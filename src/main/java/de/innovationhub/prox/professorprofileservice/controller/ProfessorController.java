@@ -99,12 +99,8 @@ public class ProfessorController {
     throw new NotFoundException();
   }
 
-  @PostMapping(value = "/professors/{id}")
-  public ResponseEntity<EntityModel<Professor>> saveProfessor(
-      @PathVariable UUID id, @RequestBody Professor professor) {
-    if (professor.getId() != id) {
-      throw new NotImplementedException();
-    }
+  @PostMapping(value = "/professors")
+  public ResponseEntity<EntityModel<Professor>> saveProfessor(@RequestBody Professor professor) {
     var entityModel =
         professorRepresentationModelAssembler.toModel(professorRepository.save(professor));
     return ResponseEntity.ok(entityModel);
