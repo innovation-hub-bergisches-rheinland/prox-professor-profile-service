@@ -7,8 +7,6 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.web.servlet.config.annotation.CorsRegistry;
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import springfox.documentation.builders.PathSelectors;
 import springfox.documentation.service.AuthorizationScope;
 import springfox.documentation.service.HttpAuthenticationScheme;
@@ -27,7 +25,8 @@ public class SpringfoxConfig {
     this.eurekaClient = eurekaClient;
   }
 
-  @Bean
+  // Removed as multiple Cors Headers were set
+  /*@Bean
   public WebMvcConfigurer corsConfigurer() {
     return new WebMvcConfigurer() {
       @Override
@@ -35,7 +34,7 @@ public class SpringfoxConfig {
         registry.addMapping("/**").allowedOrigins("*");
       }
     };
-  }
+  }*/
 
   @Bean
   public Docket api() {
