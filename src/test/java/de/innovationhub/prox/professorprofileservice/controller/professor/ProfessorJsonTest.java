@@ -36,7 +36,7 @@ class ProfessorJsonTest {
                 "Mo. 18-20 Uhr",
                 "example@example.org",
                 "+12 3456 789",
-                new URI("http://example.org").toURL()),
+                "http://example.org"),
             new ProfileImage(),
             Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
             Arrays.asList(
