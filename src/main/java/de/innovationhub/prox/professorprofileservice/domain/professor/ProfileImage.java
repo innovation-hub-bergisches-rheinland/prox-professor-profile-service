@@ -6,16 +6,12 @@ import javax.persistence.Lob;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.apache.commons.codec.binary.Base64;
-import org.hibernate.annotations.Type;
 
 @Embeddable
 @Data
 @NoArgsConstructor
 public class ProfileImage {
-  @Lob
-  @Type(type = "org.hibernate.type.BlobType")
-  @Column
-  private byte[] data;
+  @Lob @Column private byte[] data;
 
   public ProfileImage(byte[] data) {
     setData(data);

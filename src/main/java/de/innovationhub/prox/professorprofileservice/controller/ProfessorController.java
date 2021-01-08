@@ -17,7 +17,6 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -65,8 +64,7 @@ public class ProfessorController {
   }
 
   @GetMapping("/professors/{id}")
-  public ResponseEntity<EntityModel<Professor>> getProfessor(@PathVariable UUID id)
-      throws NotFoundException {
+  public ResponseEntity<EntityModel<Professor>> getProfessor(@PathVariable UUID id) {
     var professor =
         professorRepository
             .findById(id)
@@ -77,8 +75,7 @@ public class ProfessorController {
   }
 
   @GetMapping(value = "/professors/{id}/faculty")
-  public ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable UUID id)
-      throws NotFoundException {
+  public ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable UUID id) {
     var professor =
         professorRepository
             .findById(id)
@@ -94,7 +91,7 @@ public class ProfessorController {
 
   @PutMapping(value = "/professors/{id}/faculty", consumes = MediaType.TEXT_PLAIN_VALUE)
   public ResponseEntity<EntityModel<Faculty>> saveFaculty(
-      @PathVariable UUID id, @RequestBody String facultyId) throws NotFoundException {
+      @PathVariable UUID id, @RequestBody String facultyId) {
     var optProfessor = professorRepository.findById(id);
     try {
       var faculty = facultyRepository.findById(UUID.fromString(facultyId));
@@ -133,8 +130,7 @@ public class ProfessorController {
   }
 
   @GetMapping(value = "/professors/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
-  public ResponseEntity<byte[]> getProfessorImage(@PathVariable UUID id)
-      throws IOException, NotFoundException {
+  public ResponseEntity<byte[]> getProfessorImage(@PathVariable UUID id) throws IOException {
     var optProfessor = professorRepository.findById(id);
     if (optProfessor.isPresent()) {
       var professor = optProfessor.get();
@@ -155,10 +151,9 @@ public class ProfessorController {
     throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find professor");
   }
 
-  @PostMapping(value = "/professors/{id}/image")
+  @PostMapping(value = "/professors/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<byte[]> postProfessorImage(
-      @PathVariable UUID id, @RequestParam("image") MultipartFile image)
-      throws IOException, NotFoundException {
+      @PathVariable UUID id, @RequestParam("image") MultipartFile image) throws IOException {
     var optProfessor = professorRepository.findById(id);
     if (optProfessor.isPresent()) {
       var professor = optProfessor.get();
@@ -170,6 +165,7 @@ public class ProfessorController {
             throw new IOException();
           }
           professor.setProfileImage(new ProfileImage(byteArrayOutputStream.toByteArray()));
+          professorRepository.save(professor);
           return ResponseEntity.ok().build();
         }
       }
