@@ -117,7 +117,7 @@ public class ProfessorController {
   @PutMapping(value = "/professors/{id}")
   public ResponseEntity<EntityModel<Professor>> updateProfessor(
       @PathVariable UUID id, @RequestBody Professor professor) {
-    if (professor.getId() != id) {
+    if (!professor.getId().equals(id)) {
       throw new NotImplementedException();
     }
     if (professorRepository.existsById(professor.getId())) {
