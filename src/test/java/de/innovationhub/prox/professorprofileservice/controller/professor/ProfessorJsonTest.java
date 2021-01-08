@@ -8,7 +8,6 @@ import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Publication;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
-import java.net.URI;
 import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -118,8 +117,7 @@ class ProfessorJsonTest {
     assertThat(professor.getContactInformation().getConsultationHour()).isEqualTo("Mo. 18-20 Uhr");
     assertThat(professor.getContactInformation().getEmail()).isEqualTo("example@example.org");
     assertThat(professor.getContactInformation().getTelephone()).isEqualTo("+12 3456 789");
-    assertThat(professor.getContactInformation().getHomepage())
-        .isEqualTo(new URI("http://example.org").toURL());
+    assertThat(professor.getContactInformation().getHomepage()).isEqualTo("http://example.org");
     assertThat(professor.getContactInformation().getRoom()).isEqualTo("2.100");
     assertThat(professor.getResearchSubjects())
         .containsExactlyInAnyOrderElementsOf(

@@ -1,9 +1,7 @@
 package de.innovationhub.prox.professorprofileservice.config;
 
-import com.netflix.discovery.EurekaClient;
 import java.util.Collections;
 import java.util.List;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -19,11 +17,7 @@ import springfox.documentation.spring.web.plugins.Docket;
 @Configuration
 public class SpringfoxConfig {
 
-  private final EurekaClient eurekaClient;
-
-  public SpringfoxConfig(@Qualifier("eurekaClient") EurekaClient eurekaClient) {
-    this.eurekaClient = eurekaClient;
-  }
+  public SpringfoxConfig() {}
 
   // Removed as multiple Cors Headers were set
   /*@Bean

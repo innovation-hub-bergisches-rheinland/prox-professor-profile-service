@@ -36,6 +36,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -162,7 +163,7 @@ class ProfessorControllerTest {
     when(professorRepository.findById(any(UUID.class))).thenReturn(Optional.of(professor));
 
     mockMvc
-        .perform(get(PROFESSORS_ID_IMAGE_URL, professor.getId()).accept(MediaTypes.HAL_JSON_VALUE))
+        .perform(get(PROFESSORS_ID_IMAGE_URL, professor.getId()).accept(MediaType.IMAGE_PNG_VALUE))
         .andDo(print())
         .andExpect(status().isOk());
   }
