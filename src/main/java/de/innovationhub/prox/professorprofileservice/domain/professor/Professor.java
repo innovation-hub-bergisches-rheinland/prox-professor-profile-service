@@ -26,7 +26,7 @@ public class Professor extends AbstractEntity {
   private String mainSubject;
   @JsonIgnore @ManyToOne private Faculty faculty;
   @Embedded private ContactInformation contactInformation;
-  @Embedded private ProfileImage profileImage;
+  @JsonIgnore @Embedded private ProfileImage profileImage;
   @ElementCollection private List<ResearchSubject> researchSubjects;
   @ElementCollection private List<Publication> publications;
   @Lob private String vita;

@@ -29,6 +29,7 @@ import javax.imageio.ImageIO;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.Test;
 import org.keycloak.adapters.springboot.KeycloakAutoConfiguration;
+import org.keycloak.common.util.Base64;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -154,7 +155,9 @@ class ProfessorControllerTest {
             "IoT",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(),
-            new ProfileImage(),
+            new ProfileImage(
+                Base64.decode(
+                    "iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAIAAABvrngfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVBhXYwCC////o5DofAhAF0XnQwC6KDqfgQEA+xE1y82ydeIAAAAASUVORK5CYII=")),
             Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
             Arrays.asList(
                 new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
