@@ -1,5 +1,7 @@
 package de.innovationhub.prox.professorprofileservice.application.config;
 
+import de.innovationhub.prox.professorprofileservice.application.security.AuthenticationUtils;
+import de.innovationhub.prox.professorprofileservice.application.security.KeycloakAuthenticationUtils;
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;
 import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticationProvider;
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
@@ -20,6 +22,11 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
         this.keycloakAuthenticationProvider();
     keycloakAuthenticationProvider.setGrantedAuthoritiesMapper(new SimpleAuthorityMapper());
     auth.authenticationProvider(keycloakAuthenticationProvider);
+  }
+
+  @Bean
+  public AuthenticationUtils authenticationUtils() {
+    return new KeycloakAuthenticationUtils();
   }
 
   @Bean

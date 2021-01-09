@@ -2,15 +2,18 @@ package de.innovationhub.prox.professorprofileservice.application.controller.pro
 
 import de.innovationhub.prox.professorprofileservice.application.exception.ApiError;
 import de.innovationhub.prox.professorprofileservice.application.exception.faculty.FacultyNotFoundException;
+import de.innovationhub.prox.professorprofileservice.application.exception.integrety.PathIdNotMatchingEntityIdException;
 import de.innovationhub.prox.professorprofileservice.application.exception.professor.ProfessorNotFoundException;
+import de.innovationhub.prox.professorprofileservice.application.exception.security.RequestUserIdNotFoundException;
+import de.innovationhub.prox.professorprofileservice.application.exception.security.UnauthorizedException;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.ProfessorRepresentationModelAssembler;
+import de.innovationhub.prox.professorprofileservice.application.security.AuthenticationUtils;
 import de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyService;
 import de.innovationhub.prox.professorprofileservice.application.service.professor.ProfessorService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
-import io.swagger.annotations.ApiOperation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -18,8 +21,8 @@ import java.net.URLConnection;
 import java.util.Optional;
 import java.util.UUID;
 import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.NotImplementedException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Sort;
@@ -28,6 +31,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -44,6 +48,7 @@ public class ProfessorController {
   ProfessorService professorService;
   FacultyService facultyService;
   ResourceLoader resourceLoader;
+  AuthenticationUtils authenticationUtils;
   ProfessorRepresentationModelAssembler professorRepresentationModelAssembler;
   FacultyRepresentationModelAssembler facultyRepresentationModelAssembler;
 
@@ -52,11 +57,13 @@ public class ProfessorController {
       ProfessorService professorService,
       FacultyService facultyService,
       ResourceLoader resourceLoader,
+      AuthenticationUtils authenticationUtils,
       ProfessorRepresentationModelAssembler professorRepresentationModelAssembler,
       FacultyRepresentationModelAssembler facultyRepresentationModelAssembler) {
     this.professorService = professorService;
     this.facultyService = facultyService;
     this.resourceLoader = resourceLoader;
+    this.authenticationUtils = authenticationUtils;
     this.professorRepresentationModelAssembler = professorRepresentationModelAssembler;
     this.facultyRepresentationModelAssembler = facultyRepresentationModelAssembler;
   }
@@ -96,8 +103,17 @@ public class ProfessorController {
   }
 
   @PutMapping(value = "/professors/{id}/faculty", consumes = MediaType.TEXT_PLAIN_VALUE)
+  @PreAuthorize("hasRole('professor')")
   public ResponseEntity<EntityModel<Faculty>> saveFaculty(
-      @PathVariable UUID id, @RequestBody String facultyId) {
+      @PathVariable UUID id, @RequestBody String facultyId, HttpServletRequest httpServletRequest) {
+    var userId =
+        authenticationUtils
+            .getUserUUIDFromRequest(httpServletRequest)
+            .orElseThrow(RequestUserIdNotFoundException::new);
+    if (!userId.equals(id)) {
+      throw new UnauthorizedException();
+    }
+
     var optProfessor = this.professorService.getProfessor(id);
     var optFaculty = this.facultyService.getFaculty(UUID.fromString(facultyId));
 
@@ -112,7 +128,16 @@ public class ProfessorController {
   }
 
   @PostMapping(value = "/professors")
-  public ResponseEntity<EntityModel<Professor>> saveProfessor(@RequestBody Professor professor) {
+  @PreAuthorize("hasRole('professor')")
+  public ResponseEntity<EntityModel<Professor>> saveProfessor(
+      @RequestBody Professor professor, HttpServletRequest httpServletRequest) {
+    var userId =
+        authenticationUtils
+            .getUserUUIDFromRequest(httpServletRequest)
+            .orElseThrow(RequestUserIdNotFoundException::new);
+    if (!userId.equals(professor.getId())) {
+      throw new UnauthorizedException();
+    }
     var entityModel =
         this.professorRepresentationModelAssembler.toModel(
             this.professorService.saveProfessor(professor));
@@ -121,9 +146,18 @@ public class ProfessorController {
 
   @PutMapping(value = "/professors/{id}")
   public ResponseEntity<EntityModel<Professor>> updateProfessor(
-      @PathVariable UUID id, @RequestBody Professor professor) {
+      @PathVariable UUID id,
+      @RequestBody Professor professor,
+      HttpServletRequest httpServletRequest) {
+    var userId =
+        authenticationUtils
+            .getUserUUIDFromRequest(httpServletRequest)
+            .orElseThrow(RequestUserIdNotFoundException::new);
+    if (!userId.equals(professor.getId())) {
+      throw new UnauthorizedException();
+    }
     if (!professor.getId().equals(id)) {
-      throw new NotImplementedException();
+      throw new PathIdNotMatchingEntityIdException();
     }
     if (this.professorService.professorExists(professor)) {
       return ResponseEntity.ok(
@@ -162,9 +196,19 @@ public class ProfessorController {
   }
 
   @PostMapping(value = "/professors/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-  @ApiOperation(value = "Daa", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PreAuthorize("hasRole('professor')")
   public ResponseEntity<byte[]> postProfessorImage(
-      @PathVariable UUID id, @RequestParam("image") MultipartFile image) throws IOException {
+      @PathVariable UUID id,
+      @RequestParam("image") MultipartFile image,
+      HttpServletRequest httpServletRequest)
+      throws IOException {
+    var userId =
+        authenticationUtils
+            .getUserUUIDFromRequest(httpServletRequest)
+            .orElseThrow(RequestUserIdNotFoundException::new);
+    if (!userId.equals(id)) {
+      throw new UnauthorizedException();
+    }
     var optProfessor = this.professorService.getProfessor(id);
     if (optProfessor.isPresent()) {
       var professor = optProfessor.get();
