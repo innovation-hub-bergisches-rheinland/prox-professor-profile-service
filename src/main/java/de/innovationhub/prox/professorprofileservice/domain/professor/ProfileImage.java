@@ -1,10 +1,12 @@
 package de.innovationhub.prox.professorprofileservice.domain.professor;
 
+import de.innovationhub.prox.professorprofileservice.domain.exception.DataNotEncodedException;
 import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import javax.persistence.Lob;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.SneakyThrows;
 import org.apache.commons.codec.binary.Base64;
 
 @Embeddable
@@ -25,7 +27,11 @@ public class ProfileImage {
     }
   }
 
+  @SneakyThrows
   public byte[] getData() {
-    return Base64.decodeBase64(this.data);
+    if (Base64.isBase64(this.data)) {
+      return Base64.decodeBase64(this.data);
+    }
+    throw new DataNotEncodedException("ProfileImage data is not a Base64 encoded");
   }
 }
