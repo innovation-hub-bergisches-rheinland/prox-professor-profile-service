@@ -1,8 +1,9 @@
 package de.innovationhub.prox.professorprofileservice.application.exception.faculty;
 
-import javax.persistence.EntityNotFoundException;
+import de.innovationhub.prox.professorprofileservice.application.exception.core.CustomEntityNotFoundException;
 
-public class FacultyNotFoundException extends EntityNotFoundException {
+/** Thrown when a faculty entity could not found */
+public class FacultyNotFoundException extends CustomEntityNotFoundException {
 
   public FacultyNotFoundException() {
     super("Could not find faculty");

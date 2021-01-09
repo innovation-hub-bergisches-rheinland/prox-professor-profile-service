@@ -19,17 +19,6 @@ public class SpringfoxConfig {
 
   public SpringfoxConfig() {}
 
-  // Removed as multiple Cors Headers were set
-  /*@Bean
-  public WebMvcConfigurer corsConfigurer() {
-    return new WebMvcConfigurer() {
-      @Override
-      public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**").allowedOrigins("*");
-      }
-    };
-  }*/
-
   @Bean
   public Docket api() {
     return new Docket(DocumentationType.OAS_30)
