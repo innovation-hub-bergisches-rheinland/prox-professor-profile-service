@@ -3,8 +3,8 @@ package de.innovationhub.prox.professorprofileservice.application.hatoeas;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
-import de.innovationhub.prox.professorprofileservice.application.controller.FacultyController;
-import de.innovationhub.prox.professorprofileservice.application.controller.ProfessorController;
+import de.innovationhub.prox.professorprofileservice.application.controller.faculty.FacultyController;
+import de.innovationhub.prox.professorprofileservice.application.controller.professor.ProfessorController;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import java.io.IOException;
 import org.springframework.data.domain.Sort;

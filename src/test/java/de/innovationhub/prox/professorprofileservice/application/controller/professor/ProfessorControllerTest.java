@@ -9,14 +9,13 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import de.innovationhub.prox.professorprofileservice.application.config.KeycloakConfig;
 import de.innovationhub.prox.professorprofileservice.application.config.SecurityConfig;
-import de.innovationhub.prox.professorprofileservice.application.controller.ProfessorController;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.ProfessorRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyService;
+import de.innovationhub.prox.professorprofileservice.application.service.professor.ProfessorService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ContactInformation;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
-import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Publication;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
@@ -63,7 +62,7 @@ class ProfessorControllerTest {
 
   @MockBean FacultyService facultyService;
 
-  @MockBean ProfessorRepository professorRepository;
+  @MockBean ProfessorService professorService;
 
   @Test
   void getAllProfessors() throws Exception {
@@ -80,7 +79,7 @@ class ProfessorControllerTest {
                 new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
             "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
 
-    when(professorRepository.findAll()).thenReturn(Collections.singletonList(professor));
+    when(this.professorService.getAllProfessors()).thenReturn(Collections.singletonList(professor));
 
     mockMvc
         .perform(get(PROFESSORS_URL).accept(MediaTypes.HAL_JSON_VALUE))
@@ -124,7 +123,7 @@ class ProfessorControllerTest {
                 new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
             "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
 
-    when(professorRepository.findById(any(UUID.class))).thenReturn(Optional.of(professor));
+    when(this.professorService.getProfessor(any(UUID.class))).thenReturn(Optional.of(professor));
 
     mockMvc
         .perform(get(PROFESSORS_ID_URL, professor.getId()).accept(MediaTypes.HAL_JSON_VALUE))
@@ -163,7 +162,7 @@ class ProfessorControllerTest {
                 new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
             "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
 
-    when(professorRepository.findById(any(UUID.class))).thenReturn(Optional.of(professor));
+    when(this.professorService.getProfessor(any(UUID.class))).thenReturn(Optional.of(professor));
 
     mockMvc
         .perform(get(PROFESSORS_ID_IMAGE_URL, professor.getId()).accept(MediaType.IMAGE_PNG_VALUE))
@@ -186,7 +185,7 @@ class ProfessorControllerTest {
                 new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
             "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
 
-    when(professorRepository.findById(any(UUID.class))).thenReturn(Optional.of(professor));
+    when(this.professorService.getProfessor(any(UUID.class))).thenReturn(Optional.of(professor));
 
     mockMvc
         .perform(
@@ -209,7 +208,7 @@ class ProfessorControllerTest {
     ImageIO.write(image, "png", byteArrayOutputStream);
 
     assertArrayEquals(
-        professorRepository.findById(professor.getId()).get().getProfileImage().getData(),
+        this.professorService.getProfessor(professor.getId()).get().getProfileImage().getData(),
         byteArrayOutputStream.toByteArray());
   }
 
@@ -228,7 +227,7 @@ class ProfessorControllerTest {
                 new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
             "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
 
-    when(professorRepository.findById(any(UUID.class))).thenReturn(Optional.of(professor));
+    when(professorService.getProfessor(any(UUID.class))).thenReturn(Optional.of(professor));
 
     Faculty faculty = professor.getFaculty();
 
@@ -258,7 +257,7 @@ class ProfessorControllerTest {
 
     Faculty faculty = new Faculty("F11", "Fakultät für Angewandte Naturwissenschaften");
 
-    when(professorRepository.findById(any(UUID.class))).thenReturn(Optional.of(professor));
+    when(professorService.getProfessor(any(UUID.class))).thenReturn(Optional.of(professor));
     when(facultyService.getFaculty(any(UUID.class))).thenReturn(Optional.of(faculty));
 
     mockMvc

@@ -1,17 +1,21 @@
-package de.innovationhub.prox.professorprofileservice.application.controller;
+package de.innovationhub.prox.professorprofileservice.application.controller.professor;
 
+import de.innovationhub.prox.professorprofileservice.application.exception.ApiError;
+import de.innovationhub.prox.professorprofileservice.application.exception.faculty.FacultyNotFoundException;
+import de.innovationhub.prox.professorprofileservice.application.exception.professor.ProfessorNotFoundException;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.ProfessorRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyService;
+import de.innovationhub.prox.professorprofileservice.application.service.professor.ProfessorService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
-import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
 import io.swagger.annotations.ApiOperation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLConnection;
+import java.util.Optional;
 import java.util.UUID;
 import javax.imageio.ImageIO;
 import org.apache.commons.io.IOUtils;
@@ -24,6 +28,7 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -32,12 +37,11 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.server.ResponseStatusException;
 
 @RestController
 public class ProfessorController {
 
-  ProfessorRepository professorRepository;
+  ProfessorService professorService;
   FacultyService facultyService;
   ResourceLoader resourceLoader;
   ProfessorRepresentationModelAssembler professorRepresentationModelAssembler;
@@ -45,73 +49,73 @@ public class ProfessorController {
 
   @Autowired
   public ProfessorController(
-      ProfessorRepository professorRepository,
+      ProfessorService professorService,
       FacultyService facultyService,
       ResourceLoader resourceLoader,
       ProfessorRepresentationModelAssembler professorRepresentationModelAssembler,
       FacultyRepresentationModelAssembler facultyRepresentationModelAssembler) {
-    this.professorRepository = professorRepository;
+    this.professorService = professorService;
     this.facultyService = facultyService;
     this.resourceLoader = resourceLoader;
     this.professorRepresentationModelAssembler = professorRepresentationModelAssembler;
     this.facultyRepresentationModelAssembler = facultyRepresentationModelAssembler;
   }
 
+  @ExceptionHandler({IllegalArgumentException.class, NumberFormatException.class})
+  public ResponseEntity<ApiError> numberFormatException() {
+    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+        .body(
+            new ApiError(
+                HttpStatus.BAD_REQUEST.value(), "Invalid Professor ID", "Received invalid UUID"));
+  }
+
   @GetMapping("/professors")
   public ResponseEntity<CollectionModel<EntityModel<Professor>>> getAllProfessors(Sort sort) {
     var collectionModel =
-        professorRepresentationModelAssembler.toCollectionModel(professorRepository.findAll());
+        this.professorRepresentationModelAssembler.toCollectionModel(
+            this.professorService.getAllProfessors());
     return ResponseEntity.ok(collectionModel);
   }
 
   @GetMapping("/professors/{id}")
   public ResponseEntity<EntityModel<Professor>> getProfessor(@PathVariable UUID id) {
     var professor =
-        professorRepository
-            .findById(id)
-            .orElseThrow(
-                () ->
-                    new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find professor"));
-    return ResponseEntity.ok(professorRepresentationModelAssembler.toModel(professor));
+        this.professorService.getProfessor(id).orElseThrow(ProfessorNotFoundException::new);
+    return ResponseEntity.ok(this.professorRepresentationModelAssembler.toModel(professor));
   }
 
   @GetMapping(value = "/professors/{id}/faculty")
   public ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable UUID id) {
     var professor =
-        professorRepository
-            .findById(id)
-            .orElseThrow(
-                () ->
-                    new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find professor"));
-    var faculty = professor.getFaculty();
-    if (faculty != null) {
-      return ResponseEntity.ok(facultyRepresentationModelAssembler.toModel(faculty));
-    }
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find faculty");
+        this.professorService.getProfessor(id).orElseThrow(ProfessorNotFoundException::new);
+
+    var optionalFaculty = Optional.ofNullable(professor.getFaculty());
+    var faculty = optionalFaculty.orElseThrow(FacultyNotFoundException::new);
+
+    return ResponseEntity.ok(this.facultyRepresentationModelAssembler.toModel(faculty));
   }
 
   @PutMapping(value = "/professors/{id}/faculty", consumes = MediaType.TEXT_PLAIN_VALUE)
   public ResponseEntity<EntityModel<Faculty>> saveFaculty(
       @PathVariable UUID id, @RequestBody String facultyId) {
-    var optProfessor = professorRepository.findById(id);
-    try {
-      var faculty = facultyService.getFaculty(UUID.fromString(facultyId));
-      if (optProfessor.isPresent() && faculty.isPresent()) {
-        var professor = optProfessor.get();
-        professor.setFaculty(faculty.get());
-        professorRepository.save(professor);
-        return ResponseEntity.ok(facultyRepresentationModelAssembler.toModel(faculty.get()));
-      }
-    } catch (IllegalArgumentException e) {
-      return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-    }
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find professor");
+    var optProfessor = this.professorService.getProfessor(id);
+    var optFaculty = this.facultyService.getFaculty(UUID.fromString(facultyId));
+
+    var professor = optProfessor.orElseThrow(ProfessorNotFoundException::new);
+    var faculty = optFaculty.orElseThrow(FacultyNotFoundException::new);
+
+    professor.setFaculty(faculty);
+
+    this.professorService.saveProfessor(professor);
+
+    return ResponseEntity.ok(this.facultyRepresentationModelAssembler.toModel(faculty));
   }
 
   @PostMapping(value = "/professors")
   public ResponseEntity<EntityModel<Professor>> saveProfessor(@RequestBody Professor professor) {
     var entityModel =
-        professorRepresentationModelAssembler.toModel(professorRepository.save(professor));
+        this.professorRepresentationModelAssembler.toModel(
+            this.professorService.saveProfessor(professor));
     return ResponseEntity.ok(entityModel);
   }
 
@@ -121,23 +125,28 @@ public class ProfessorController {
     if (!professor.getId().equals(id)) {
       throw new NotImplementedException();
     }
-    if (professorRepository.existsById(professor.getId())) {
+    if (this.professorService.professorExists(professor)) {
       return ResponseEntity.ok(
-          professorRepresentationModelAssembler.toModel(professorRepository.save(professor)));
+          this.professorRepresentationModelAssembler.toModel(
+              this.professorService.saveProfessor(professor)));
     } else {
       return ResponseEntity.status(HttpStatus.CREATED)
-          .body(professorRepresentationModelAssembler.toModel(professorRepository.save(professor)));
+          .body(
+              this.professorRepresentationModelAssembler.toModel(
+                  this.professorService.saveProfessor(professor)));
     }
   }
 
   @GetMapping(value = "/professors/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
   public ResponseEntity<byte[]> getProfessorImage(@PathVariable UUID id) throws IOException {
-    var optProfessor = professorRepository.findById(id);
+    var optProfessor = this.professorService.getProfessor(id);
     if (optProfessor.isPresent()) {
       var professor = optProfessor.get();
       if (professor.getProfileImage() == null || professor.getProfileImage().getData() == null) {
         var inputStream =
-            resourceLoader.getResource("classpath:/img/blank-profile-picture.png").getInputStream();
+            this.resourceLoader
+                .getResource("classpath:/img/blank-profile-picture.png")
+                .getInputStream();
         String contentType = URLConnection.guessContentTypeFromStream(inputStream);
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType(contentType))
@@ -149,14 +158,14 @@ public class ProfessorController {
         return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(data);
       }
     }
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find professor");
+    throw new ProfessorNotFoundException();
   }
 
   @PostMapping(value = "/professors/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @ApiOperation(value = "Daa", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<byte[]> postProfessorImage(
       @PathVariable UUID id, @RequestParam("image") MultipartFile image) throws IOException {
-    var optProfessor = professorRepository.findById(id);
+    var optProfessor = this.professorService.getProfessor(id);
     if (optProfessor.isPresent()) {
       var professor = optProfessor.get();
       try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(image.getBytes());
@@ -167,11 +176,11 @@ public class ProfessorController {
             throw new IOException();
           }
           professor.setProfileImage(new ProfileImage(byteArrayOutputStream.toByteArray()));
-          professorRepository.save(professor);
+          this.professorService.saveProfessor(professor);
           return ResponseEntity.ok().build();
         }
       }
     }
-    throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Unable to find professor");
+    throw new ProfessorNotFoundException();
   }
 }
