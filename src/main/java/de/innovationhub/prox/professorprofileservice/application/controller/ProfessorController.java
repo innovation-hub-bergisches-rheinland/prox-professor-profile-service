@@ -2,8 +2,8 @@ package de.innovationhub.prox.professorprofileservice.application.controller;
 
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.ProfessorRepresentationModelAssembler;
+import de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
-import de.innovationhub.prox.professorprofileservice.domain.faculty.FacultyRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
@@ -38,7 +38,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class ProfessorController {
 
   ProfessorRepository professorRepository;
-  FacultyRepository facultyRepository;
+  FacultyService facultyService;
   ResourceLoader resourceLoader;
   ProfessorRepresentationModelAssembler professorRepresentationModelAssembler;
   FacultyRepresentationModelAssembler facultyRepresentationModelAssembler;
@@ -46,12 +46,12 @@ public class ProfessorController {
   @Autowired
   public ProfessorController(
       ProfessorRepository professorRepository,
-      FacultyRepository facultyRepository,
+      FacultyService facultyService,
       ResourceLoader resourceLoader,
       ProfessorRepresentationModelAssembler professorRepresentationModelAssembler,
       FacultyRepresentationModelAssembler facultyRepresentationModelAssembler) {
     this.professorRepository = professorRepository;
-    this.facultyRepository = facultyRepository;
+    this.facultyService = facultyService;
     this.resourceLoader = resourceLoader;
     this.professorRepresentationModelAssembler = professorRepresentationModelAssembler;
     this.facultyRepresentationModelAssembler = facultyRepresentationModelAssembler;
@@ -95,7 +95,7 @@ public class ProfessorController {
       @PathVariable UUID id, @RequestBody String facultyId) {
     var optProfessor = professorRepository.findById(id);
     try {
-      var faculty = facultyRepository.findById(UUID.fromString(facultyId));
+      var faculty = facultyService.getFaculty(UUID.fromString(facultyId));
       if (optProfessor.isPresent() && faculty.isPresent()) {
         var professor = optProfessor.get();
         professor.setFaculty(faculty.get());

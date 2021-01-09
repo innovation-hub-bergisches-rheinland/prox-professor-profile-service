@@ -1,7 +1,7 @@
 package de.innovationhub.prox.professorprofileservice.application.config;
 
+import de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
-import de.innovationhub.prox.professorprofileservice.domain.faculty.FacultyRepository;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -16,15 +16,14 @@ import org.yaml.snakeyaml.Yaml;
 @Component
 public class FacultyImport {
 
-  private final FacultyRepository facultyRepository;
+  private final FacultyService facultyService;
   private final Resource resource;
 
   @Autowired
   public FacultyImport(
-      FacultyRepository facultyRepository,
-      @Value("classpath:/assets/faculties.yml") Resource resource) {
-    this.facultyRepository = facultyRepository;
+      FacultyService facultyService, @Value("classpath:/assets/faculties.yml") Resource resource) {
     this.resource = resource;
+    this.facultyService = facultyService;
   }
 
   @EventListener(ApplicationReadyEvent.class)
@@ -33,15 +32,11 @@ public class FacultyImport {
     try {
       List<LinkedHashMap<String, String>> facultyList = yaml.load(resource.getInputStream());
       facultyList.forEach(
-          faculty -> {
-            if (!facultyRepository.existsByAbbreviationEqualsAndNameEquals(
-                faculty.get("abbreviation"), faculty.get("name"))) {
-              facultyRepository.save(new Faculty(faculty.get("abbreviation"), faculty.get("name")));
-            }
-          });
+          faculty ->
+              this.facultyService.saveFacultyIfNotExists(
+                  new Faculty(faculty.get("abbreviation"), faculty.get("name"))));
     } catch (IOException e) {
       e.printStackTrace();
     }
-    System.out.println(facultyRepository.findAll());
   }
 }

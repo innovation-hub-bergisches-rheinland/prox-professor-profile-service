@@ -1,8 +1,8 @@
 package de.innovationhub.prox.professorprofileservice.application.controller;
 
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
+import de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
-import de.innovationhub.prox.professorprofileservice.domain.faculty.FacultyRepository;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -19,29 +19,29 @@ import org.springframework.web.server.ResponseStatusException;
 @RestController
 public class FacultyController {
 
-  private final FacultyRepository facultyRepository;
+  private final FacultyService facultyService;
   private final FacultyRepresentationModelAssembler facultyRepresentationModelAssembler;
 
   @Autowired
   public FacultyController(
-      FacultyRepository facultyRepository,
+      FacultyService facultyService,
       FacultyRepresentationModelAssembler facultyRepresentationModelAssembler) {
-    this.facultyRepository = facultyRepository;
+    this.facultyService = facultyService;
     this.facultyRepresentationModelAssembler = facultyRepresentationModelAssembler;
   }
 
   @GetMapping(value = "/faculties", produces = MediaTypes.HAL_JSON_VALUE)
   public ResponseEntity<CollectionModel<EntityModel<Faculty>>> getALlFaculties(Sort sort) {
     var collectionModel =
-        facultyRepresentationModelAssembler.toCollectionModel(facultyRepository.findAll());
+        facultyRepresentationModelAssembler.toCollectionModel(facultyService.getAllFaculties());
     return ResponseEntity.ok(collectionModel);
   }
 
   @GetMapping(value = "faculties/{id}", produces = MediaTypes.HAL_JSON_VALUE)
   public ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable("id") UUID id) {
     var faculty =
-        facultyRepository
-            .findById(id)
+        facultyService
+            .getFaculty(id)
             .orElseThrow(
                 () -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Faculty not found"));
     return ResponseEntity.ok(facultyRepresentationModelAssembler.toModel(faculty));

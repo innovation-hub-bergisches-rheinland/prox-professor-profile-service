@@ -12,8 +12,8 @@ import de.innovationhub.prox.professorprofileservice.application.config.Security
 import de.innovationhub.prox.professorprofileservice.application.controller.ProfessorController;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.ProfessorRepresentationModelAssembler;
+import de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
-import de.innovationhub.prox.professorprofileservice.domain.faculty.FacultyRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ContactInformation;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
@@ -61,7 +61,7 @@ class ProfessorControllerTest {
 
   @Autowired ResourceLoader resourceLoader;
 
-  @MockBean FacultyRepository facultyRepository;
+  @MockBean FacultyService facultyService;
 
   @MockBean ProfessorRepository professorRepository;
 
@@ -259,7 +259,7 @@ class ProfessorControllerTest {
     Faculty faculty = new Faculty("F11", "Fakultät für Angewandte Naturwissenschaften");
 
     when(professorRepository.findById(any(UUID.class))).thenReturn(Optional.of(professor));
-    when(facultyRepository.findById(any(UUID.class))).thenReturn(Optional.of(faculty));
+    when(facultyService.getFaculty(any(UUID.class))).thenReturn(Optional.of(faculty));
 
     mockMvc
         .perform(
