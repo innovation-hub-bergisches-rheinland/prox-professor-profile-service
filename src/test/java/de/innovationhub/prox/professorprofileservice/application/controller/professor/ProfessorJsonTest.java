@@ -26,6 +26,7 @@ class ProfessorJsonTest {
   void testSerialize() throws Exception {
     var professor =
         new Professor(
+            UUID.randomUUID(),
             "Prof. Dr. Xavier Tester",
             "2010",
             "IoT",

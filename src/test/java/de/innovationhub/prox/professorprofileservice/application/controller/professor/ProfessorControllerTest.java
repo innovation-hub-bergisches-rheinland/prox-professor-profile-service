@@ -68,6 +68,7 @@ class ProfessorControllerTest {
   void getAllProfessors() throws Exception {
     var professor =
         new Professor(
+            UUID.randomUUID(),
             "Prof. Dr. Xavier Tester",
             "2010",
             "IoT",
@@ -112,6 +113,7 @@ class ProfessorControllerTest {
   void getProfessor() throws Exception {
     var professor =
         new Professor(
+            UUID.randomUUID(),
             "Prof. Dr. Xavier Tester",
             "2010",
             "IoT",
@@ -149,6 +151,7 @@ class ProfessorControllerTest {
   void getProfessorImage() throws Exception {
     var professor =
         new Professor(
+            UUID.randomUUID(),
             "Prof. Dr. Xavier Tester",
             "2010",
             "IoT",
@@ -174,6 +177,7 @@ class ProfessorControllerTest {
   void postProfessorImage() throws Exception {
     var professor =
         new Professor(
+            UUID.randomUUID(),
             "Prof. Dr. Xavier Tester",
             "2010",
             "IoT",
@@ -216,6 +220,7 @@ class ProfessorControllerTest {
   void getProfessorFaculty() throws Exception {
     var professor =
         new Professor(
+            UUID.randomUUID(),
             "Prof. Dr. Xavier Tester",
             "2010",
             "IoT",
@@ -244,6 +249,7 @@ class ProfessorControllerTest {
   void setProfessorFaculty() throws Exception {
     var professor =
         new Professor(
+            UUID.randomUUID(),
             "Prof. Dr. Xavier Tester",
             "2010",
             "IoT",
