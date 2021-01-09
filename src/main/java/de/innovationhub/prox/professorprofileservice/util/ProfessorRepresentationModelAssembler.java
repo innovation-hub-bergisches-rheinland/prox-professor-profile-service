@@ -7,7 +7,6 @@ import de.innovationhub.prox.professorprofileservice.controller.FacultyControlle
 import de.innovationhub.prox.professorprofileservice.controller.ProfessorController;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import java.io.IOException;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -35,7 +34,7 @@ public class ProfessorRepresentationModelAssembler
                   .withRel("faculty"));
         }
       }
-    } catch (IOException | NotFoundException e) {
+    } catch (IOException e) {
       e.printStackTrace();
     }
   }

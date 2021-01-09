@@ -7,6 +7,7 @@ import de.innovationhub.prox.professorprofileservice.repository.FacultyRepositor
 import de.innovationhub.prox.professorprofileservice.repository.ProfessorRepository;
 import de.innovationhub.prox.professorprofileservice.util.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.util.ProfessorRepresentationModelAssembler;
+import io.swagger.annotations.ApiOperation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -152,6 +153,7 @@ public class ProfessorController {
   }
 
   @PostMapping(value = "/professors/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @ApiOperation(value = "Daa", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   public ResponseEntity<byte[]> postProfessorImage(
       @PathVariable UUID id, @RequestParam("image") MultipartFile image) throws IOException {
     var optProfessor = professorRepository.findById(id);

@@ -5,7 +5,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import de.innovationhub.prox.professorprofileservice.controller.FacultyController;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
-import org.springframework.data.crossstore.ChangeSetPersister.NotFoundException;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -20,15 +19,10 @@ public class FacultyRepresentationModelAssembler
   public void addLinks(EntityModel<Faculty> resource) {
     var faculty = resource.getContent();
     if (faculty != null) {
-      try {
-        resource.add(
-            linkTo(methodOn(FacultyController.class).getFaculty(faculty.getId())).withSelfRel());
-        resource.add(
-            linkTo(methodOn(FacultyController.class).getFaculty(faculty.getId()))
-                .withRel("faculty"));
-      } catch (NotFoundException e) {
-        e.printStackTrace();
-      }
+      resource.add(
+          linkTo(methodOn(FacultyController.class).getFaculty(faculty.getId())).withSelfRel());
+      resource.add(
+          linkTo(methodOn(FacultyController.class).getFaculty(faculty.getId())).withRel("faculty"));
     }
   }
 
