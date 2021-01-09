@@ -1,8 +1,8 @@
-package de.innovationhub.prox.professorprofileservice.controller;
+package de.innovationhub.prox.professorprofileservice.application.controller;
 
+import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
-import de.innovationhub.prox.professorprofileservice.repository.FacultyRepository;
-import de.innovationhub.prox.professorprofileservice.util.FacultyRepresentationModelAssembler;
+import de.innovationhub.prox.professorprofileservice.domain.faculty.FacultyRepository;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;

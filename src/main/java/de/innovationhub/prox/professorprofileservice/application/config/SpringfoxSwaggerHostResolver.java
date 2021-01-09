@@ -1,4 +1,4 @@
-package de.innovationhub.prox.professorprofileservice.config;
+package de.innovationhub.prox.professorprofileservice.application.config;
 
 import com.netflix.discovery.EurekaClient;
 import io.swagger.v3.oas.models.OpenAPI;

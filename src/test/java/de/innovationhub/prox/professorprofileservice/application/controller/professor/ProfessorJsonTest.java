@@ -1,4 +1,4 @@
-package de.innovationhub.prox.professorprofileservice.controller.professor;
+package de.innovationhub.prox.professorprofileservice.application.controller.professor;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

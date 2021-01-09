@@ -1,4 +1,4 @@
-package de.innovationhub.prox.professorprofileservice.config;
+package de.innovationhub.prox.professorprofileservice.application.config;
 
 import java.util.Collections;
 import java.util.List;

@@ -1,12 +1,12 @@
-package de.innovationhub.prox.professorprofileservice.controller;
+package de.innovationhub.prox.professorprofileservice.application.controller;
 
+import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
+import de.innovationhub.prox.professorprofileservice.application.hatoeas.ProfessorRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
+import de.innovationhub.prox.professorprofileservice.domain.faculty.FacultyRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
-import de.innovationhub.prox.professorprofileservice.repository.FacultyRepository;
-import de.innovationhub.prox.professorprofileservice.repository.ProfessorRepository;
-import de.innovationhub.prox.professorprofileservice.util.FacultyRepresentationModelAssembler;
-import de.innovationhub.prox.professorprofileservice.util.ProfessorRepresentationModelAssembler;
 import io.swagger.annotations.ApiOperation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
