@@ -41,7 +41,7 @@ public class FacultyController {
   }
 
   @GetMapping(value = "/faculties", produces = MediaTypes.HAL_JSON_VALUE)
-  public ResponseEntity<CollectionModel<EntityModel<Faculty>>> getALlFaculties(Sort sort) {
+  public ResponseEntity<CollectionModel<EntityModel<Faculty>>> getAllFaculties(Sort sort) {
     var collectionModel =
         facultyRepresentationModelAssembler.toCollectionModel(facultyService.getAllFaculties());
     return ResponseEntity.ok(collectionModel);

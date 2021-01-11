@@ -29,6 +29,6 @@ public class FacultyRepresentationModelAssembler
   @Override
   public void addLinks(CollectionModel<EntityModel<Faculty>> resources) {
     resources.add(
-        linkTo(methodOn(FacultyController.class).getALlFaculties(Sort.unsorted())).withSelfRel());
+        linkTo(methodOn(FacultyController.class).getAllFaculties(Sort.unsorted())).withSelfRel());
   }
 }

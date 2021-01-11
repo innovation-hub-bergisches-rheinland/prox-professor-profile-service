@@ -2,6 +2,7 @@ package de.innovationhub.prox.professorprofileservice.application.controller.pro
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
@@ -19,16 +20,17 @@ import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Publication;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
-import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
-import javax.imageio.ImageIO;
 import org.hamcrest.Matchers;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.keycloak.adapters.springboot.KeycloakAutoConfiguration;
 import org.keycloak.common.util.Base64;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -64,21 +66,31 @@ class ProfessorControllerTest {
 
   @MockBean ProfessorService professorService;
 
+  @BeforeEach
+  void setUp() {
+    MockitoAnnotations.initMocks(ProfessorControllerTest.class);
+  }
+
+  private Professor getProfessorEntity() throws IOException {
+    return new Professor(
+        UUID.randomUUID(),
+        "Prof. Dr. Xavier Tester",
+        "2010",
+        "IoT",
+        new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
+        new ContactInformation(),
+        new ProfileImage(
+            Base64.decode(
+                "iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAIAAABvrngfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVBhXYwCC////o5DofAhAF0XnQwC6KDqfgQEA+xE1y82ydeIAAAAASUVORK5CYII=")),
+        Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
+        Arrays.asList(
+            new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
+        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+  }
+
   @Test
   void getAllProfessors() throws Exception {
-    var professor =
-        new Professor(
-            UUID.randomUUID(),
-            "Prof. Dr. Xavier Tester",
-            "2010",
-            "IoT",
-            new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
-            new ContactInformation(),
-            new ProfileImage(),
-            Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
-            Arrays.asList(
-                new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
-            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+    var professor = getProfessorEntity();
 
     when(this.professorService.getAllProfessors()).thenReturn(Collections.singletonList(professor));
 
@@ -111,21 +123,9 @@ class ProfessorControllerTest {
 
   @Test
   void getProfessor() throws Exception {
-    var professor =
-        new Professor(
-            UUID.randomUUID(),
-            "Prof. Dr. Xavier Tester",
-            "2010",
-            "IoT",
-            new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
-            new ContactInformation(),
-            new ProfileImage(),
-            Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
-            Arrays.asList(
-                new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
-            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+    var professor = getProfessorEntity();
 
-    when(this.professorService.getProfessor(any(UUID.class))).thenReturn(Optional.of(professor));
+    when(this.professorService.getProfessor(professor.getId())).thenReturn(Optional.of(professor));
 
     mockMvc
         .perform(get(PROFESSORS_ID_URL, professor.getId()).accept(MediaTypes.HAL_JSON_VALUE))
@@ -149,23 +149,10 @@ class ProfessorControllerTest {
 
   @Test
   void getProfessorImage() throws Exception {
-    var professor =
-        new Professor(
-            UUID.randomUUID(),
-            "Prof. Dr. Xavier Tester",
-            "2010",
-            "IoT",
-            new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
-            new ContactInformation(),
-            new ProfileImage(
-                Base64.decode(
-                    "iVBORw0KGgoAAAANSUhEUgAAAAYAAAAGCAIAAABvrngfAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAAAeSURBVBhXYwCC////o5DofAhAF0XnQwC6KDqfgQEA+xE1y82ydeIAAAAASUVORK5CYII=")),
-            Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
-            Arrays.asList(
-                new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
-            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+    var professor = getProfessorEntity();
 
-    when(this.professorService.getProfessor(any(UUID.class))).thenReturn(Optional.of(professor));
+    when(this.professorService.getProfessorImage(professor.getId()))
+        .thenReturn(Optional.of(professor.getProfileImage().getData()));
 
     mockMvc
         .perform(get(PROFESSORS_ID_IMAGE_URL, professor.getId()).accept(MediaType.IMAGE_PNG_VALUE))
@@ -175,21 +162,10 @@ class ProfessorControllerTest {
 
   @Test
   void postProfessorImage() throws Exception {
-    var professor =
-        new Professor(
-            UUID.randomUUID(),
-            "Prof. Dr. Xavier Tester",
-            "2010",
-            "IoT",
-            new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
-            new ContactInformation(),
-            new ProfileImage(),
-            Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
-            Arrays.asList(
-                new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
-            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+    var professor = getProfessorEntity();
 
-    when(this.professorService.getProfessor(any(UUID.class))).thenReturn(Optional.of(professor));
+    when(this.professorService.saveProfessorImage(eq(professor.getId()), any(byte[].class)))
+        .thenReturn(Optional.of(professor.getProfileImage().getData()));
 
     mockMvc
         .perform(
@@ -202,37 +178,13 @@ class ProfessorControllerTest {
                             .getInputStream())))
         .andDo(print())
         .andExpect(status().isOk());
-
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    var image =
-        ImageIO.read(
-            resourceLoader
-                .getResource("classpath:/img/blank-profile-picture.png")
-                .getInputStream());
-    ImageIO.write(image, "png", byteArrayOutputStream);
-
-    assertArrayEquals(
-        this.professorService.getProfessor(professor.getId()).get().getProfileImage().getData(),
-        byteArrayOutputStream.toByteArray());
   }
 
   @Test
   void getProfessorFaculty() throws Exception {
-    var professor =
-        new Professor(
-            UUID.randomUUID(),
-            "Prof. Dr. Xavier Tester",
-            "2010",
-            "IoT",
-            new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
-            new ContactInformation(),
-            new ProfileImage(),
-            Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
-            Arrays.asList(
-                new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
-            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+    var professor = getProfessorEntity();
 
-    when(professorService.getProfessor(any(UUID.class))).thenReturn(Optional.of(professor));
+    when(professorService.getProfessor(professor.getId())).thenReturn(Optional.of(professor));
 
     Faculty faculty = professor.getFaculty();
 
@@ -247,24 +199,12 @@ class ProfessorControllerTest {
 
   @Test
   void setProfessorFaculty() throws Exception {
-    var professor =
-        new Professor(
-            UUID.randomUUID(),
-            "Prof. Dr. Xavier Tester",
-            "2010",
-            "IoT",
-            new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
-            new ContactInformation(),
-            new ProfileImage(),
-            Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
-            Arrays.asList(
-                new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
-            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+    var professor = getProfessorEntity();
 
     Faculty faculty = new Faculty("F11", "Fakultät für Angewandte Naturwissenschaften");
 
-    when(professorService.getProfessor(any(UUID.class))).thenReturn(Optional.of(professor));
-    when(facultyService.getFaculty(any(UUID.class))).thenReturn(Optional.of(faculty));
+    when(professorService.getProfessor(professor.getId())).thenReturn(Optional.of(professor));
+    when(facultyService.getFaculty(faculty.getId())).thenReturn(Optional.of(faculty));
 
     mockMvc
         .perform(

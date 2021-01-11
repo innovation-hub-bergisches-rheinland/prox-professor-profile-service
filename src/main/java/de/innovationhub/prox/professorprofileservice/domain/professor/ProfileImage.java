@@ -20,7 +20,7 @@ public class ProfileImage {
   }
 
   public void setData(byte[] data) {
-    if (!Base64.isBase64(data)) {
+    if (data != null && !Base64.isBase64(data)) {
       this.data = Base64.encodeBase64(data);
     } else {
       this.data = data;
@@ -29,7 +29,9 @@ public class ProfileImage {
 
   @SneakyThrows
   public byte[] getData() {
-    if (Base64.isBase64(this.data)) {
+    if (data == null) {
+      return new byte[] {};
+    } else if (Base64.isBase64(this.data)) {
       return Base64.decodeBase64(this.data);
     }
     throw new DataNotEncodedException("ProfileImage data is not a Base64 encoded");

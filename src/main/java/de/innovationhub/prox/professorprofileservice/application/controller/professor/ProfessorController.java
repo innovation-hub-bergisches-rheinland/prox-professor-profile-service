@@ -6,23 +6,20 @@ import de.innovationhub.prox.professorprofileservice.application.exception.integ
 import de.innovationhub.prox.professorprofileservice.application.exception.professor.ProfessorNotFoundException;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.ProfessorRepresentationModelAssembler;
-import de.innovationhub.prox.professorprofileservice.application.security.AuthenticationUtils;
 import de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyService;
 import de.innovationhub.prox.professorprofileservice.application.service.professor.ProfessorService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
-import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URLConnection;
+import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.UUID;
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
-import org.apache.commons.io.IOUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ResourceLoader;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -43,25 +40,20 @@ import org.springframework.web.multipart.MultipartFile;
 @RestController
 public class ProfessorController {
 
-  ProfessorService professorService;
-  FacultyService facultyService;
-  ResourceLoader resourceLoader;
-  AuthenticationUtils authenticationUtils;
-  ProfessorRepresentationModelAssembler professorRepresentationModelAssembler;
-  FacultyRepresentationModelAssembler facultyRepresentationModelAssembler;
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
+  private final ProfessorService professorService;
+  private final FacultyService facultyService;
+  private final ProfessorRepresentationModelAssembler professorRepresentationModelAssembler;
+  private final FacultyRepresentationModelAssembler facultyRepresentationModelAssembler;
 
   @Autowired
   public ProfessorController(
       ProfessorService professorService,
       FacultyService facultyService,
-      ResourceLoader resourceLoader,
-      AuthenticationUtils authenticationUtils,
       ProfessorRepresentationModelAssembler professorRepresentationModelAssembler,
       FacultyRepresentationModelAssembler facultyRepresentationModelAssembler) {
     this.professorService = professorService;
     this.facultyService = facultyService;
-    this.resourceLoader = resourceLoader;
-    this.authenticationUtils = authenticationUtils;
     this.professorRepresentationModelAssembler = professorRepresentationModelAssembler;
     this.facultyRepresentationModelAssembler = facultyRepresentationModelAssembler;
   }
@@ -137,66 +129,57 @@ public class ProfessorController {
     if (!professor.getId().equals(id)) {
       throw new PathIdNotMatchingEntityIdException();
     }
-    if (this.professorService.professorExists(professor)) {
-      return ResponseEntity.ok(
-          this.professorRepresentationModelAssembler.toModel(
-              this.professorService.saveProfessor(professor)));
-    } else {
-      return ResponseEntity.status(HttpStatus.CREATED)
-          .body(
-              this.professorRepresentationModelAssembler.toModel(
-                  this.professorService.saveProfessor(professor)));
-    }
+
+    var savedProfessor = this.professorService.updateProfessor(id, professor);
+
+    // Try to update professor, otherwise create the professor
+    // If professor was updated return 200 OK, if created 201 CREATED
+    return savedProfessor
+        .map(value -> ResponseEntity.ok(this.professorRepresentationModelAssembler.toModel(value)))
+        .orElseGet(
+            () ->
+                ResponseEntity.status(HttpStatus.CREATED)
+                    .body(
+                        this.professorRepresentationModelAssembler.toModel(
+                            this.professorService.saveProfessor(professor))));
   }
 
   @GetMapping(value = "/professors/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
   public ResponseEntity<byte[]> getProfessorImage(@PathVariable UUID id) throws IOException {
-    var optProfessor = this.professorService.getProfessor(id);
-    if (optProfessor.isPresent()) {
-      var professor = optProfessor.get();
-      if (professor.getProfileImage() == null || professor.getProfileImage().getData() == null) {
-        var inputStream =
-            this.resourceLoader
-                .getResource("classpath:/img/blank-profile-picture.png")
-                .getInputStream();
-        String contentType = URLConnection.guessContentTypeFromStream(inputStream);
+    try {
+      var optProfileImage = this.professorService.getProfessorImage(id);
+      if (optProfileImage.isPresent()) {
+        var profileImage = optProfileImage.get();
+        String contentType =
+            URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(profileImage));
         return ResponseEntity.ok()
             .contentType(MediaType.parseMediaType(contentType))
-            .body(IOUtils.toByteArray(inputStream));
-      } else {
-        var data = professor.getProfileImage().getData();
-        String contentType =
-            URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(data));
-        return ResponseEntity.ok().contentType(MediaType.parseMediaType(contentType)).body(data);
+            .body(profileImage);
       }
+      throw new ProfessorNotFoundException();
+    } catch (IOException e) {
+      logger.error(
+          MessageFormat.format("Could not load profile image with Professor ID {0}", id), e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
-    throw new ProfessorNotFoundException();
   }
 
   @PostMapping(value = "/professors/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
   @PreAuthorize(
       "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(request, #id)")
-  public ResponseEntity<byte[]> postProfessorImage(
+  public ResponseEntity<?> postProfessorImage(
       @PathVariable UUID id,
       @RequestParam("image") MultipartFile image,
-      HttpServletRequest httpServletRequest)
-      throws IOException {
-    var optProfessor = this.professorService.getProfessor(id);
-    if (optProfessor.isPresent()) {
-      var professor = optProfessor.get();
-      try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(image.getBytes());
-          ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
-        var bufferedImage = ImageIO.read(byteArrayInputStream);
-        if (bufferedImage != null) {
-          if (!ImageIO.write(bufferedImage, "png", byteArrayOutputStream)) {
-            throw new IOException();
-          }
-          professor.setProfileImage(new ProfileImage(byteArrayOutputStream.toByteArray()));
-          this.professorService.saveProfessor(professor);
-          return ResponseEntity.ok().build();
-        }
-      }
+      HttpServletRequest httpServletRequest) {
+    try {
+      return this.professorService
+          .saveProfessorImage(id, image.getBytes())
+          .map(value -> ResponseEntity.ok().build())
+          .orElseThrow(ProfessorNotFoundException::new);
+    } catch (IOException e) {
+      logger.error(
+          MessageFormat.format("Could not save profile image with Professor ID {0}", id), e);
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
-    throw new ProfessorNotFoundException();
   }
 }
