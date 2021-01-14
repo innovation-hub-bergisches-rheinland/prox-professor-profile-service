@@ -94,4 +94,15 @@ public class ProfessorService {
 
     return Optional.empty();
   }
+
+  public Optional<ProfileImage> deleteProfessorImage(UUID id) {
+    var optProfessor = this.getProfessor(id);
+    if (optProfessor.isPresent()) {
+      var professor = optProfessor.get();
+      professor.setProfileImage(new ProfileImage(new byte[] {}));
+      this.saveProfessor(professor);
+      return Optional.of(professor.getProfileImage());
+    }
+    return Optional.empty();
+  }
 }

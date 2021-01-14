@@ -27,6 +27,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -168,11 +169,11 @@ public class ProfessorController {
       value = "/professors/{id}/image",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @PreAuthorize(
-      "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(request, #id)")
+      "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
   public ResponseEntity<?> postProfessorImage(
       @PathVariable UUID id,
       @RequestParam("image") MultipartFile image,
-      HttpServletRequest httpServletRequest) {
+      HttpServletRequest request) {
     try {
       return this.professorService
           .saveProfessorImage(id, image.getBytes())
@@ -183,5 +184,15 @@ public class ProfessorController {
           MessageFormat.format("Could not save profile image with Professor ID {0}", id), e);
       return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+  }
+
+  @DeleteMapping(value = "/professors/{id}/image")
+  @PreAuthorize(
+      "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
+  public ResponseEntity<?> deleteProfessorImage(@PathVariable UUID id, HttpServletRequest request) {
+    return this.professorService
+        .deleteProfessorImage(id)
+        .map(value -> ResponseEntity.status(HttpStatus.NO_CONTENT).build())
+        .orElseThrow(ProfessorNotFoundException::new);
   }
 }
