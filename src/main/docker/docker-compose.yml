@@ -6,7 +6,7 @@ services:
     depends_on:
       - professor-profile-db
     volumes:
-      - professor-profile-img-data:/app/data/images
+      - professor-profile-img-data:/data/img
     networks:
       - prox
       - professor-profile-db

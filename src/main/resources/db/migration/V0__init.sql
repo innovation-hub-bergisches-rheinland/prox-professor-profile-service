@@ -23,7 +23,7 @@ create table professor
 			unique,
 	main_subject varchar(255),
 	name varchar(255),
-	data oid,
+	filename varchar (255),
 	vita text,
 	faculty_id uuid
 		constraint fkd1eougli9k1sdoq78cme3rnjg

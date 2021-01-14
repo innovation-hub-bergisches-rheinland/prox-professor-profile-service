@@ -5,4 +5,5 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ProfessorRepository extends PagingAndSortingRepository<Professor, UUID> {}
+public interface ProfessorRepository
+    extends PagingAndSortingRepository<Professor, UUID>, ProfessorImageFileRepository {}

@@ -5,7 +5,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ContactInformation;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
-import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Publication;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
 import java.util.Arrays;
@@ -37,7 +36,7 @@ class ProfessorJsonTest {
                 "example@example.org",
                 "+12 3456 789",
                 "http://example.org"),
-            new ProfileImage(),
+            "test.123",
             Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
             Arrays.asList(
                 new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),

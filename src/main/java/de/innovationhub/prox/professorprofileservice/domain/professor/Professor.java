@@ -40,7 +40,7 @@ public class Professor extends AbstractEntity {
 
   @Embedded private ContactInformation contactInformation;
 
-  @JsonIgnore @Embedded private ProfileImage profileImage;
+  private String filename;
 
   @ElementCollection private List<ResearchSubject> researchSubjects;
 

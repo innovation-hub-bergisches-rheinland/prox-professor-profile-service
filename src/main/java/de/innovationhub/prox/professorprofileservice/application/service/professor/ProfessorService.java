@@ -2,7 +2,6 @@ package de.innovationhub.prox.professorprofileservice.application.service.profes
 
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
-import de.innovationhub.prox.professorprofileservice.domain.professor.ProfileImage;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,8 +45,8 @@ public class ProfessorService {
     var optProfessor = this.professorRepository.findById(uuid);
     if (optProfessor.isPresent()) {
       var prof = optProfessor.get();
-      if (prof.getProfileImage() != null) {
-        professor.setProfileImage(new ProfileImage(prof.getProfileImage().getData()));
+      if (prof.getFilename() != null) { // TODO get rid of this
+        professor.setFilename(prof.getFilename());
       }
       this.modelMapper.map(professor, prof);
       return Optional.of(this.professorRepository.save(prof));
@@ -55,26 +54,32 @@ public class ProfessorService {
     return Optional.empty();
   }
 
+  // TODO Refactor
   public Optional<byte[]> getProfessorImage(UUID uuid) throws IOException {
     var optProfessor = this.getProfessor(uuid);
     if (optProfessor.isPresent()) {
       var professor = optProfessor.get();
-      if (professor.getProfileImage() == null
-          || professor.getProfileImage().getData().length == 0) {
-        var inputStream =
-            this.resourceLoader
-                .getResource("classpath:/img/blank-profile-picture.png")
-                .getInputStream();
-        return Optional.of(IOUtils.toByteArray(inputStream));
-      } else {
-        var data = professor.getProfileImage().getData();
-        return Optional.of(data);
+      if (!professor.getFilename().isBlank()) {
+        try {
+          var result = this.professorRepository.getProfessorImage(professor.getFilename());
+          if (result.length > 0 && ImageIO.read(new ByteArrayInputStream(result)) != null) {
+            return Optional.of(result);
+          }
+        } catch (Exception e) {
+          e.printStackTrace();
+        }
       }
+      var inputStream =
+          this.resourceLoader
+              .getResource("classpath:/img/blank-profile-picture.png")
+              .getInputStream();
+      return Optional.of(IOUtils.toByteArray(inputStream));
     }
     return Optional.empty();
   }
 
-  public Optional<byte[]> saveProfessorImage(UUID uuid, byte[] imageData) throws IOException {
+  // TODO Refactor
+  public Optional<Boolean> saveProfessorImage(UUID uuid, byte[] imageData) throws IOException {
     var optProfessor = this.getProfessor(uuid);
     if (optProfessor.isPresent()) {
       var professor = optProfessor.get();
@@ -85,9 +90,14 @@ public class ProfessorService {
           if (!ImageIO.write(bufferedImage, "png", byteArrayOutputStream)) {
             throw new IOException();
           }
-          professor.setProfileImage(new ProfileImage(byteArrayOutputStream.toByteArray()));
+          var filename =
+              this.professorRepository.saveProfessorImage(byteArrayOutputStream.toByteArray());
+          if (this.professorRepository.imageExists(professor.getFilename())) {
+            this.professorRepository.deleteProfessorImage(professor.getFilename());
+          }
+          professor.setFilename(filename);
           this.saveProfessor(professor);
-          return Optional.of(imageData);
+          return Optional.of(true);
         }
       }
     }
@@ -95,13 +105,24 @@ public class ProfessorService {
     return Optional.empty();
   }
 
-  public Optional<ProfileImage> deleteProfessorImage(UUID id) {
+  // TODO Refactor
+  public Optional<Boolean> deleteProfessorImage(UUID id) {
     var optProfessor = this.getProfessor(id);
     if (optProfessor.isPresent()) {
       var professor = optProfessor.get();
-      professor.setProfileImage(new ProfileImage(new byte[] {}));
-      this.saveProfessor(professor);
-      return Optional.of(professor.getProfileImage());
+      if (professor.getFilename() != null) {
+        try {
+          var result = this.professorRepository.deleteProfessorImage(professor.getFilename());
+          if (result) {
+            professor.setFilename("");
+            this.saveProfessor(professor);
+          }
+          return Optional.of(result);
+        } catch (Exception e) {
+          e.printStackTrace();
+          return Optional.of(false);
+        }
+      }
     }
     return Optional.empty();
   }
