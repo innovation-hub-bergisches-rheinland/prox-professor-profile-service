@@ -1,0 +1,33 @@
+version: "3.7"
+
+services:
+  professor-profile-service:
+    image: ${REPOSITORY}/${IMAGE}:${TAG}
+    depends_on:
+      - professor-profile-db
+    volumes:
+      - professor-profile-img-data:/app/data/images
+    networks:
+      - prox
+      - professor-profile-db
+
+  professor-profile-db:
+    image: postgres:11.3-alpine
+    volumes:
+      - professor-profile-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=professor-profile-service
+      - POSTGRES_PASSWORD=professor-profile-service
+      - POSTGRES_DB=professor-profile-db
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    networks:
+      - professor-profile-db
+
+volumes:
+  professor-profile-db-data:
+  professor-profile-img-data:
+
+networks:
+  prox:
+    external: true
+  professor-profile-db:
