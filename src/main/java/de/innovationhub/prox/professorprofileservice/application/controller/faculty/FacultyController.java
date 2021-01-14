@@ -12,10 +12,13 @@ import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
@@ -51,5 +54,16 @@ public class FacultyController {
   public ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable("id") UUID id) {
     var faculty = facultyService.getFaculty(id).orElseThrow(FacultyNotFoundException::new);
     return ResponseEntity.ok(facultyRepresentationModelAssembler.toModel(faculty));
+  }
+
+  @PostMapping(
+      value = "faculties",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaTypes.HAL_JSON_VALUE)
+  public ResponseEntity<EntityModel<Faculty>> saveFaculty(@RequestBody Faculty faculty) {
+    var savedFaculty = facultyService.saveFacultyIfNotExists(faculty);
+    return savedFaculty
+        .map(value -> ResponseEntity.ok(facultyRepresentationModelAssembler.toModel(value)))
+        .orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
   }
 }

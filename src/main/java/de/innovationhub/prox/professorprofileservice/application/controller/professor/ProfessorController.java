@@ -164,7 +164,9 @@ public class ProfessorController {
     }
   }
 
-  @PostMapping(value = "/professors/{id}/image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+  @PostMapping(
+      value = "/professors/{id}/image",
+      consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @PreAuthorize(
       "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(request, #id)")
   public ResponseEntity<?> postProfessorImage(

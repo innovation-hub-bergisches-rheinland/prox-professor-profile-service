@@ -13,7 +13,7 @@ keycloak:
   resource: prox-professor-profile-service
 server:
   port: 9005
-  forward-headers-strategy: native
+  forward-headers-strategy: framework
 spring:
   servlet:
     multipart:
