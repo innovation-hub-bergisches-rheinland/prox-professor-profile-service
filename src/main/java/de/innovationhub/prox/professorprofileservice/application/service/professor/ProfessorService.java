@@ -46,6 +46,9 @@ public class ProfessorService {
     var optProfessor = this.professorRepository.findById(uuid);
     if (optProfessor.isPresent()) {
       var prof = optProfessor.get();
+      if (prof.getProfileImage() != null) {
+        professor.setProfileImage(new ProfileImage(prof.getProfileImage().getData()));
+      }
       this.modelMapper.map(professor, prof);
       return Optional.of(this.professorRepository.save(prof));
     }
