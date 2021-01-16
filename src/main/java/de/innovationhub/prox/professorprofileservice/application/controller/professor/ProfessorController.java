@@ -60,7 +60,8 @@ public class ProfessorController {
   }
 
   @ExceptionHandler({IllegalArgumentException.class, NumberFormatException.class})
-  public ResponseEntity<ApiError> numberFormatException() {
+  public ResponseEntity<ApiError> numberFormatException(Exception e) {
+    e.printStackTrace();
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(
             new ApiError(
@@ -146,23 +147,30 @@ public class ProfessorController {
   }
 
   @GetMapping(value = "/professors/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
-  public ResponseEntity<byte[]> getProfessorImage(@PathVariable UUID id) throws IOException {
-    try {
-      var optProfileImage = this.professorService.getProfessorImage(id);
-      if (optProfileImage.isPresent()) {
-        var profileImage = optProfileImage.get();
+  public ResponseEntity<byte[]> getProfessorImage(@PathVariable UUID id) {
+    if (!this.professorService.existsById(id)) {
+      throw new ProfessorNotFoundException();
+    }
+
+    var optProfileImage = this.professorService.getProfessorImage(id);
+
+    if (optProfileImage.isPresent()) {
+      var profileImage = optProfileImage.get();
+      try {
         String contentType =
             URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(profileImage));
-        return ResponseEntity.ok()
-            .contentType(MediaType.parseMediaType(contentType))
-            .body(profileImage);
+        if (contentType != null) {
+          return ResponseEntity.ok()
+              .contentType(MediaType.parseMediaType(contentType))
+              .body(profileImage);
+        }
+      } catch (IOException e) {
+        logger.error(
+            MessageFormat.format("Could not load profile image with Professor ID {0}", id), e);
       }
-      throw new ProfessorNotFoundException();
-    } catch (IOException e) {
-      logger.error(
-          MessageFormat.format("Could not load profile image with Professor ID {0}", id), e);
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
+
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
   }
 
   @PostMapping(
@@ -170,15 +178,13 @@ public class ProfessorController {
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @PreAuthorize(
       "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
-  public ResponseEntity<?> postProfessorImage(
+  public ResponseEntity postProfessorImage(
       @PathVariable UUID id,
       @RequestParam("image") MultipartFile image,
       HttpServletRequest request) {
     try {
-      return this.professorService
-          .saveProfessorImage(id, image.getBytes())
-          .map(value -> ResponseEntity.ok().build())
-          .orElseThrow(ProfessorNotFoundException::new);
+      this.professorService.saveProfessorImage(id, image.getBytes());
+      return ResponseEntity.ok().build();
     } catch (IOException e) {
       logger.error(
           MessageFormat.format("Could not save profile image with Professor ID {0}", id), e);
@@ -189,10 +195,8 @@ public class ProfessorController {
   @DeleteMapping(value = "/professors/{id}/image")
   @PreAuthorize(
       "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
-  public ResponseEntity<?> deleteProfessorImage(@PathVariable UUID id, HttpServletRequest request) {
-    return this.professorService
-        .deleteProfessorImage(id)
-        .map(value -> ResponseEntity.status(HttpStatus.NO_CONTENT).build())
-        .orElseThrow(ProfessorNotFoundException::new);
+  public ResponseEntity deleteProfessorImage(@PathVariable UUID id, HttpServletRequest request) {
+    this.professorService.deleteProfessorImage(id);
+    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
 }

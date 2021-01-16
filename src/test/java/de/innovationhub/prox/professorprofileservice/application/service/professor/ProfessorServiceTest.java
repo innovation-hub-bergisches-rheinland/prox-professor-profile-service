@@ -2,11 +2,11 @@ package de.innovationhub.prox.professorprofileservice.application.service.profes
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.innovationhub.prox.professorprofileservice.application.config.ModelMapperConfig;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.FacultyRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ContactInformation;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImage;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Publication;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
@@ -14,7 +14,6 @@ import java.util.Arrays;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
-import org.apache.commons.io.IOUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -23,7 +22,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 @DataJpaTest
-@Import({ProfessorService.class, ModelMapperConfig.class})
+@Import({ProfessorService.class})
 class ProfessorServiceTest {
 
   @Autowired ProfessorService professorService;
@@ -45,7 +44,7 @@ class ProfessorServiceTest {
             "IoT",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(),
-            "test123.png",
+            new ProfessorImage("test123.png"),
             Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
             Arrays.asList(
                 new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
@@ -145,7 +144,7 @@ class ProfessorServiceTest {
     assertTrue(savedProf.get().getProfileImage().getData().length > 0);
   }*/
 
-  @Test
+  /*@Test
   void should_not_save_image_when_professor_not_exists() throws Exception {
     var inputStream = this.getClass().getResourceAsStream("/img/blank-profile-picture.png");
 
@@ -154,5 +153,5 @@ class ProfessorServiceTest {
 
     assertTrue(optImage.isEmpty());
     assertEquals(0, professorRepository.count());
-  }
+  }*/
 }
