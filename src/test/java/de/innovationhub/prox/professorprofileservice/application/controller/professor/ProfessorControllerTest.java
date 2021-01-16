@@ -15,6 +15,7 @@ import de.innovationhub.prox.professorprofileservice.application.service.profess
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ContactInformation;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImage;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Publication;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
 import java.io.IOException;
@@ -73,7 +74,7 @@ class ProfessorControllerTest {
         "IoT",
         new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
         new ContactInformation(),
-        "123.png",
+        new ProfessorImage("123.png"),
         Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
         Arrays.asList(
             new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),

@@ -277,7 +277,7 @@
         <version>${dockerfile-maven-plugin.version}</version>
         <configuration>
           <contextDirectory>${project.basedir}</contextDirectory>
-          <repository>${docker.image.prefix}/${project.artifactId}</repository>
+          <repository>${docker.image.prefix}/${project.artifactId}:${project.version}</repository>
         </configuration>
         <executions>
           <execution>

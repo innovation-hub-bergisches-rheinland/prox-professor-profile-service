@@ -60,7 +60,8 @@ public class ProfessorController {
   }
 
   @ExceptionHandler({IllegalArgumentException.class, NumberFormatException.class})
-  public ResponseEntity<ApiError> numberFormatException() {
+  public ResponseEntity<ApiError> numberFormatException(Exception e) {
+    e.printStackTrace();
     return ResponseEntity.status(HttpStatus.BAD_REQUEST)
         .body(
             new ApiError(

@@ -1,5 +1,6 @@
-package de.innovationhub.prox.professorprofileservice.domain.professor;
+package de.innovationhub.prox.professorprofileservice.application.repository;
 
+import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImageRepository;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -13,17 +14,23 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ProfessorImageFileRepositoryImpl implements ProfessorImageFileRepository {
+public class ProfessorImageRepositoryImpl implements ProfessorImageRepository {
 
+  /**
+   * Directory where the images are stored Can be configured via {@code profile.image.directory}
+   * property Defaults to {@code ./data/img}
+   */
   private final String imageDirectory;
 
-  public ProfessorImageFileRepositoryImpl(
+  public ProfessorImageRepositoryImpl(
       @Value("${profile.image.directory:./data/img}") String imageDirectory) throws IOException {
     this.imageDirectory = imageDirectory;
-    var directory = Paths.get(imageDirectory);
+    var directory = Paths.get(imageDirectory); // Open image directory
     if (Files.notExists(directory)) {
+      // Create if it not exists
       Files.createDirectories(directory);
     }
+    // Throw error when provided directory is not a directory or is not writeable
     if (!Files.isDirectory(directory) || !Files.isWritable(directory)) {
       throw new IOException(directory + " is not a directory or not writable");
     }
@@ -37,8 +44,7 @@ public class ProfessorImageFileRepositoryImpl implements ProfessorImageFileRepos
 
   @Override
   public String saveProfessorImage(byte[] data) throws IOException {
-    var file =
-        Paths.get(imageDirectory, UUID.randomUUID().toString() + "." + detectFileEnding(data));
+    var file = Paths.get(imageDirectory, UUID.randomUUID().toString() + detectFileEnding(data));
     return Files.write(file, data).getFileName().toString();
   }
 
@@ -51,17 +57,20 @@ public class ProfessorImageFileRepositoryImpl implements ProfessorImageFileRepos
     return false;
   }
 
-  private String detectFileEnding(byte[] data) {
-    try {
-      ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
+  /**
+   * Detects the file ending of image data
+   *
+   * @param data image data
+   * @return file ending of image data or an empty string when the type somehow can not detecte
+   * @throws IOException on I/O error
+   */
+  private String detectFileEnding(byte[] data) throws IOException {
+    ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(data));
 
-      Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(iis);
+    Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(iis);
 
-      if (imageReaders.hasNext()) {
-        return imageReaders.next().getFormatName();
-      }
-    } catch (Exception e) {
-      e.printStackTrace();
+    if (imageReaders.hasNext()) {
+      return "." + imageReaders.next().getFormatName();
     }
     return "";
   }

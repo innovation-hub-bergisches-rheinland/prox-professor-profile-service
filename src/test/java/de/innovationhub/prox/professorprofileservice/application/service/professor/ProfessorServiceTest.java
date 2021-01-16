@@ -2,11 +2,11 @@ package de.innovationhub.prox.professorprofileservice.application.service.profes
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import de.innovationhub.prox.professorprofileservice.application.config.ModelMapperConfig;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.FacultyRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ContactInformation;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImage;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Publication;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
@@ -23,7 +23,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
 
 @DataJpaTest
-@Import({ProfessorService.class, ModelMapperConfig.class})
+@Import({ProfessorService.class})
 class ProfessorServiceTest {
 
   @Autowired ProfessorService professorService;
@@ -45,7 +45,7 @@ class ProfessorServiceTest {
             "IoT",
             new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
             new ContactInformation(),
-            "test123.png",
+            new ProfessorImage("test123.png"),
             Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
             Arrays.asList(
                 new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
