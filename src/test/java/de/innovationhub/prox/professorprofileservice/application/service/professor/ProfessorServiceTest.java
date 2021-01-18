@@ -1,16 +1,26 @@
 package de.innovationhub.prox.professorprofileservice.application.service.professor;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import de.innovationhub.prox.professorprofileservice.application.exception.professor.ProfessorNotFoundException;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.FacultyRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ContactInformation;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImage;
+import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImageRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Publication;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
+import java.io.IOException;
 import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
@@ -19,11 +29,14 @@ import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 
 @DataJpaTest
 @Import({ProfessorService.class})
 class ProfessorServiceTest {
+
+  @MockBean ProfessorImageRepository professorImageRepository;
 
   @Autowired ProfessorService professorService;
 
@@ -34,7 +47,7 @@ class ProfessorServiceTest {
   private Professor professor = null;
 
   @BeforeEach
-  void setup() throws Exception {
+  void setup() {
     MockitoAnnotations.initMocks(this.getClass());
     this.professor =
         new Professor(
@@ -54,104 +67,154 @@ class ProfessorServiceTest {
   }
 
   @Test
-  void should_get_all_professors() throws Exception {
-    professorRepository.save(professor);
+  void when_get_all_professors_then_get_all_professors() {
+    this.professorRepository.save(this.professor);
 
-    var professorIterable = professorService.getAllProfessors();
-    var list =
-        StreamSupport.stream(professorIterable.spliterator(), false).collect(Collectors.toList());
+    Iterable<Professor> iterable = this.professorService.getAllProfessors();
+    List<Professor> list =
+        StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
+
     assertFalse(list.isEmpty());
-    assertTrue(list.contains(professor));
+    assertEquals(this.professor, list.get(0));
   }
 
   @Test
-  void should_get_professor() throws Exception {
-    professorRepository.save(professor);
+  void when_get_professor_then_get_professor() {
+    this.professorRepository.save(this.professor);
 
-    var optProfessor = professorService.getProfessor(professor.getId());
-    assertTrue(optProfessor.isPresent());
-    assertEquals(professor, optProfessor.get());
+    Optional<Professor> optionalProfessor =
+        this.professorService.getProfessor(this.professor.getId());
+
+    assertTrue(optionalProfessor.isPresent());
+    assertEquals(this.professor, optionalProfessor.get());
   }
 
   @Test
-  void should_save_professor() throws Exception {
-    professorService.saveProfessor(professor);
+  void when_save_professor_then_save_professors() {
+    this.professorService.saveProfessor(this.professor);
 
-    var optProfessor = professorRepository.findById(professor.getId());
-    assertTrue(optProfessor.isPresent());
-    assertEquals(professor, optProfessor.get());
+    Optional<Professor> optionalProfessor =
+        this.professorRepository.findById(this.professor.getId());
+
+    assertTrue(optionalProfessor.isPresent());
+    assertEquals(this.professor, optionalProfessor.get());
   }
 
   @Test
-  void should_update_professor_when_exists() throws Exception {
-    professorRepository.save(professor);
+  void when_update_professor_and_exists_should_update_but_not_update_image() {
+    this.professorRepository.save(this.professor);
 
-    professor.setName("New Name");
+    this.professor.setName("Test 123");
+    var tmpImage = this.professor.getProfessorImage();
+    this.professor.setProfessorImage(new ProfessorImage(null));
 
-    var optProfessor = professorService.updateProfessor(professor.getId(), professor);
-    assertTrue(optProfessor.isPresent());
-    assertEquals(professor, optProfessor.get());
+    this.professorService.updateProfessor(this.professor.getId(), this.professor);
+
+    this.professor.setProfessorImage(tmpImage);
+
+    Optional<Professor> optionalProfessor =
+        this.professorRepository.findById(this.professor.getId());
+    assertTrue(optionalProfessor.isPresent());
+    assertEquals(this.professor, optionalProfessor.get());
   }
 
   @Test
-  void should_not_update_professor_when_not_exists() throws Exception {
-    professor.setName("New Name");
+  void when_update_professor_not_exists_should_return_empty() {
+    this.professor.setName("Test 123");
+    this.professor.setProfessorImage(new ProfessorImage(null));
 
-    var optProfessor = professorService.updateProfessor(professor.getId(), professor);
-    assertTrue(optProfessor.isEmpty());
+    Optional<Professor> optionalProfessor =
+        this.professorService.updateProfessor(this.professor.getId(), this.professor);
+
+    assertTrue(optionalProfessor.isEmpty());
   }
-
-  /*@Test
-  void should_get_profile_image() throws Exception {
-    professorRepository.save(professor);
-
-    var optImage = professorService.getProfessorImage(professor.getId());
-    assertTrue(optImage.isPresent());
-    assertTrue(Arrays.equals(professor.getProfileImage().getData(), optImage.get()));
-  }*/
-
-  /*@Test
-  void should_get_default_image_when_image_not_exists() throws Exception {
-    professor.setFilename(null);
-    professorRepository.save(professor);
-
-    var inputStream = this.getClass().getResourceAsStream("/img/blank-profile-picture.png");
-
-    var optImage = professorService.getProfessorImage(professor.getId());
-    assertTrue(optImage.isPresent());
-    assertTrue(Arrays.equals(IOUtils.toByteArray(inputStream), optImage.get()));
-  }*/
 
   @Test
-  void should_get_no_image_when_professor_not_exists() throws Exception {
-    var optImage = professorService.getProfessorImage(UUID.randomUUID());
-    assertTrue(optImage.isEmpty());
+  void when_professor_image_present_then_return_image() {
+    when(this.professorImageRepository.getProfessorImage(anyString()))
+        .thenReturn(
+            Optional.of(
+                new byte[] {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A}));
+    this.professorRepository.save(this.professor);
+
+    this.professorService.getProfessorImage(this.professor.getId());
+
+    verify(this.professorImageRepository, times(1))
+        .getProfessorImage(this.professor.getProfessorImage().getFilename());
   }
 
-  /*@Test
-  void should_save_image() throws Exception {
-    professorRepository.save(professor);
+  @Test
+  void when_professor_image_empty_then_return_default_image() {
+    when(this.professorImageRepository.getProfessorImage(anyString())).thenReturn(Optional.empty());
+    this.professorRepository.save(this.professor);
 
-    var inputStream = this.getClass().getResourceAsStream("/img/blank-profile-picture.png");
+    this.professorService.getProfessorImage(this.professor.getId());
 
-    var optImage =
-        professorService.saveProfessorImage(professor.getId(), IOUtils.toByteArray(inputStream));
+    verify(this.professorImageRepository, times(1)).getDefaultImage();
+  }
 
-    assertTrue(optImage.isPresent());
-    var savedProf = professorRepository.findById(professor.getId());
-    assertTrue(savedProf.isPresent());
-    assertNotNull(savedProf.get().getProfileImage());
-    assertTrue(savedProf.get().getProfileImage().getData().length > 0);
-  }*/
+  @Test
+  void when_professor_not_exist_should_return_empty() {
+    var result = this.professorService.getProfessorImage(this.professor.getId());
+    assertTrue(result.isEmpty());
+  }
 
-  /*@Test
-  void should_not_save_image_when_professor_not_exists() throws Exception {
-    var inputStream = this.getClass().getResourceAsStream("/img/blank-profile-picture.png");
+  @Test
+  void when_save_professor_image_should_be_saved() throws IOException {
+    String filename = UUID.randomUUID() + ".png";
+    when(this.professorImageRepository.saveProfessorImage(any(byte[].class))).thenReturn(filename);
+    this.professorRepository.save(this.professor);
 
-    var optImage =
-        professorService.saveProfessorImage(professor.getId(), IOUtils.toByteArray(inputStream));
+    var data = new byte[] {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A};
 
-    assertTrue(optImage.isEmpty());
-    assertEquals(0, professorRepository.count());
-  }*/
+    this.professorService.saveProfessorImage(professor.getId(), data);
+
+    verify(this.professorImageRepository, times(1)).saveProfessorImage(data);
+    verify(this.professorImageRepository, times(1))
+        .deleteProfessorImage(this.professor.getProfessorImage().getFilename());
+    Optional<Professor> optionalProfessor =
+        this.professorRepository.findById(this.professor.getId());
+    assertTrue(optionalProfessor.isPresent());
+    assertEquals(filename, optionalProfessor.get().getProfessorImage().getFilename());
+  }
+
+  @SuppressWarnings("java:S5778")
+  @Test
+  void when_save_professor_image_professor_not_exists_should_throw_exception() {
+    var data = new byte[] {0x00, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08, 0x09, 0x0A};
+
+    assertThrows(
+        ProfessorNotFoundException.class,
+        () -> this.professorService.saveProfessorImage(professor.getId(), data));
+  }
+
+  @Test
+  void when_delete_professor_image_professor_should_call_delete() throws IOException {
+    this.professorRepository.save(this.professor);
+
+    this.professorService.deleteProfessorImage(this.professor.getId());
+
+    verify(this.professorImageRepository, times(1))
+        .deleteProfessorImage(this.professor.getProfessorImage().getFilename());
+  }
+
+  @SuppressWarnings("java:S5778")
+  @Test
+  void when_delete_professor_image_professor_not_exists_should_throw_exception() {
+    assertThrows(
+        ProfessorNotFoundException.class,
+        () -> this.professorService.deleteProfessorImage(this.professor.getId()));
+  }
+
+  @Test
+  void when_exists_then_true() {
+    this.professorRepository.save(this.professor);
+
+    assertTrue(this.professorService.existsById(this.professor.getId()));
+  }
+
+  @Test
+  void when_not_exists_then_false() {
+    assertFalse(this.professorService.existsById(this.professor.getId()));
+  }
 }

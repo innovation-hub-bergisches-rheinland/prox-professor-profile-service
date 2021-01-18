@@ -12,6 +12,7 @@ import javax.persistence.Entity;
 import javax.persistence.EntityListeners;
 import javax.persistence.Lob;
 import javax.persistence.ManyToOne;
+import javax.validation.constraints.NotBlank;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -32,7 +33,7 @@ public class Professor extends AbstractEntity {
   @Column(unique = true)
   private UUID creatorId;
 
-  private String name;
+  @NotBlank private String name;
   private String affiliation;
   private String mainSubject;
 
@@ -40,8 +41,7 @@ public class Professor extends AbstractEntity {
 
   @Embedded private ContactInformation contactInformation;
 
-  @Embedded @JsonIgnore private ProfessorImage professorImage;
-  // private String filename;
+  @EqualsAndHashCode.Exclude @Embedded @JsonIgnore private ProfessorImage professorImage;
 
   @ElementCollection private List<ResearchSubject> researchSubjects;
 

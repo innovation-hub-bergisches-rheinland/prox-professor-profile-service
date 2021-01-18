@@ -1,7 +1,7 @@
 package de.innovationhub.prox.professorprofileservice.application.controller.professor;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -35,6 +35,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.MediaType;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = ProfessorController.class)
@@ -140,38 +142,48 @@ class ProfessorControllerTest {
         .andExpect(jsonPath("$._links.faculty.href", Matchers.any(String.class)));
   }
 
-  /*@Test
+  @Test
+  @SuppressWarnings("java:S2970")
   void getProfessorImage() throws Exception {
     var professor = getProfessorEntity();
+    var imageData =
+        resourceLoader
+            .getResource("classpath:/img/blank-profile-picture.png")
+            .getInputStream()
+            .readAllBytes();
 
+    when(this.professorService.existsById(professor.getId())).thenReturn(true);
     when(this.professorService.getProfessorImage(professor.getId()))
-        .thenReturn(Optional.of(professor.getProfileImage().getData()));
+        .thenReturn(Optional.of(imageData));
 
     mockMvc
         .perform(get(PROFESSORS_ID_IMAGE_URL, professor.getId()).accept(MediaType.IMAGE_PNG_VALUE))
         .andDo(print())
         .andExpect(status().isOk());
-  }*/
 
-  /*@Test
+    verify(this.professorService).getProfessorImage(professor.getId());
+  }
+
+  @Test
+  @SuppressWarnings("java:S2970")
   void postProfessorImage() throws Exception {
     var professor = getProfessorEntity();
 
-    when(this.professorService.saveProfessorImage(eq(professor.getId()), any(byte[].class)))
-        .thenReturn(Optional.of(professor.getProfileImage().getData()));
+    var data =
+        resourceLoader
+            .getResource("classpath:/img/blank-profile-picture.png")
+            .getInputStream()
+            .readAllBytes();
 
     mockMvc
         .perform(
             multipart(PROFESSORS_ID_IMAGE_URL, professor.getId())
-                .file(
-                    new MockMultipartFile(
-                        "image",
-                        resourceLoader
-                            .getResource("classpath:/img/blank-profile-picture.png")
-                            .getInputStream())))
+                .file(new MockMultipartFile("image", data)))
         .andDo(print())
         .andExpect(status().isOk());
-  }*/
+
+    verify(this.professorService).saveProfessorImage(professor.getId(), data);
+  }
 
   @Test
   void getProfessorFaculty() throws Exception {
@@ -210,5 +222,15 @@ class ProfessorControllerTest {
         .andExpect(jsonPath("$.id", Matchers.is(faculty.getId().toString())))
         .andExpect(jsonPath("$.abbreviation", Matchers.is(faculty.getAbbreviation())))
         .andExpect(jsonPath("$.name", Matchers.is(faculty.getName())));
+  }
+
+  @Test
+  void deleteProfessorImage() throws Exception {
+    var professor = getProfessorEntity();
+
+    mockMvc
+        .perform(delete(PROFESSORS_ID_IMAGE_URL, professor.getId()))
+        .andDo(print())
+        .andExpect(status().isNoContent());
   }
 }

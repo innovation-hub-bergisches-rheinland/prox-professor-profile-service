@@ -35,7 +35,6 @@ public class FacultyImportService {
    * instantiated and imports the Faculties as described in {@link
    * de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyImportService}
    */
-  // TODO refactor
   @EventListener(ApplicationReadyEvent.class)
   public void importFaculties() {
     Yaml yaml = new Yaml();
