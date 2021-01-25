@@ -240,6 +240,11 @@
       <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
+        <configuration>
+          <image>
+            <name>${docker.image.prefix}/${project.artifactId}</name>
+          </image>
+        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -276,44 +281,6 @@
         <configuration>
           <skip>true</skip>
         </configuration>
-      </plugin>
-      <plugin>
-        <groupId>com.spotify</groupId>
-        <artifactId>dockerfile-maven-plugin</artifactId>
-        <version>${dockerfile-maven-plugin.version}</version>
-        <configuration>
-          <contextDirectory>${project.basedir}</contextDirectory>
-          <repository>${docker.image.prefix}/${project.artifactId}</repository>
-        </configuration>
-        <executions>
-          <execution>
-            <id>docker-build</id>
-            <goals>
-              <goal>build</goal>
-            </goals>
-            <phase>package</phase>
-          </execution>
-          <execution>
-            <id>docker-tag</id>
-            <goals>
-              <goal>tag</goal>
-            </goals>
-            <phase>package</phase>
-            <configuration>
-              <tag>${project.version}</tag>
-            </configuration>
-          </execution>
-          <execution>
-            <id>docker-push</id>
-            <goals>
-              <goal>push</goal>
-            </goals>
-            <phase>deploy</phase>
-            <configuration>
-              <tag>${project.version}</tag>
-            </configuration>
-          </execution>
-        </executions>
       </plugin>
     </plugins>
   </build>
