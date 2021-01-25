@@ -36,6 +36,7 @@ class ProfessorJsonTest {
                 "Mo. 18-20 Uhr",
                 "example@example.org",
                 "+12 3456 789",
+                "http://example.org",
                 "http://example.org"),
             new ProfessorImage("test.123"),
             Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),

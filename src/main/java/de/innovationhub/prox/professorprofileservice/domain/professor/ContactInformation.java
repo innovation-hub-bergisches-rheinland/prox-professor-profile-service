@@ -15,4 +15,5 @@ public class ContactInformation {
   private String email;
   private String telephone;
   private String homepage;
+  private String collegePage;
 }
