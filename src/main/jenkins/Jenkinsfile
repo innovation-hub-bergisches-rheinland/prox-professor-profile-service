@@ -47,11 +47,11 @@ node {
 
             withCredentials([usernamePassword(credentialsId: 'archilab-nexus-jenkins',
                     usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
+                withEnv(["DOCKER_REGISTRY=https://docker.nexus.archi-lab.io",
+                         "DOCKER_REGISTRY_USER=$NEXUS_USERNAME",
+                         "DOCKER_REGISTRY_PASSWORD=$NEXUS_PASSWORD"])
                 sh "./mvnw -B -s settings.xml \
                             -Dspring-boot.build-image.publish=true \
-                            -Ddocker-registry-username=\"$NEXUS_USERNAME\" \
-                            -Ddocker-registry-password=\"$NEXUS_PASSWORD\" \
-                            -Ddocker-registry=\"https://docker.nexus.archi-lab.io\" \
                             -Dchangelist=${changelist} \
                             -Dskip.npm \
                             clean deploy"
