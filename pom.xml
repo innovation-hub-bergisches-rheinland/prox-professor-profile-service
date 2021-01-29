@@ -16,9 +16,6 @@
 
   <properties>
     <changelist>-SNAPSHOT</changelist>
-    <docker-registry>https://docker.nexus.archi-lab.io</docker-registry>
-    <docker-registry-username>username</docker-registry-username>
-    <docker-registry-username>password</docker-registry-username>
     <docker.image.prefix>docker.nexus.archi-lab.io/ihbr</docker.image.prefix>
     <!-- Downgraded version due to: https://github.com/spotify/dockerfile-maven/issues/329 -->
     <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
@@ -249,9 +246,9 @@
           </image>
           <docker>
             <publishRegistry>
-              <username>${docker-registry-username}</username>
-              <password>${docker-registry-password}</password>
-              <url>${docker-registry}</url>
+              <username>${env.DOCKER_REGISTRY_USER}</username>
+              <password>${env.DOCKER_REGISTRY_PASSWORD}</password>
+              <url>${env.DOCKER_REGISTRY}</url>
             </publishRegistry>
           </docker>
         </configuration>
