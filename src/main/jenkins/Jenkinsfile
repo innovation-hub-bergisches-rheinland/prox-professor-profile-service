@@ -8,7 +8,7 @@ node {
 
     def server
     def certs
-    def tagPrefix = ''
+    def tagPrefix
 
     stage('Checkout') {
         checkout scm
