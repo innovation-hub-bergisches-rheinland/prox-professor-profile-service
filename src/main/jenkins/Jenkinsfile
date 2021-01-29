@@ -49,12 +49,13 @@ node {
                     usernameVariable: 'NEXUS_USERNAME', passwordVariable: 'NEXUS_PASSWORD')]) {
                 withEnv(["DOCKER_REGISTRY=https://docker.nexus.archi-lab.io",
                          "DOCKER_REGISTRY_USER=$NEXUS_USERNAME",
-                         "DOCKER_REGISTRY_PASSWORD=$NEXUS_PASSWORD"])
-                sh "./mvnw -B -s settings.xml \
+                         "DOCKER_REGISTRY_PASSWORD=$NEXUS_PASSWORD"]) {
+                    sh "./mvnw -B -s settings.xml \
                             -Dspring-boot.build-image.publish=true \
                             -Dchangelist=${changelist} \
                             -Dskip.npm \
                             clean deploy"
+                }
             }
         }
     }
