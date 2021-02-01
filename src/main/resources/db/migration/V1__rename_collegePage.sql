@@ -1,0 +1,1 @@
+ALTER TABLE professor RENAME COLUMN collegePage TO college_page;
