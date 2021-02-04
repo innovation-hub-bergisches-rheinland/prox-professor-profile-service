@@ -1,12 +1,28 @@
 version: "3.7"
 
 services:
+  # WORKAROUND: Applications inside a buildpack image (spring-boot:build-image) run as a non-root
+  # user cnb:cnb with id=1000 gid=1000.
+  # Volumes created by docker-compose will be owned by root:root and therefore cannot be written by
+  # the spring application. As a workaround this service spawns and sets the permissions.
+  # See: https://github.com/docker/compose/issues/3270
+  volumeinit:
+    image: alpine
+    volumes:
+      - professor-profile-img-data:/data/img:rw
+    entrypoint: /bin/sh -c "chown -v 1000:1000 /data/img && chmod -v 777 /data/img"
+    restart: "no"
+    deploy:
+      restart_policy:
+        condition: none
+
   professor-profile-service:
     image: ${REPOSITORY}/${IMAGE}:${TAG}
     depends_on:
       - professor-profile-db
+      - volumeinit
     volumes:
-      - professor-profile-img-data:/data/img
+      - professor-profile-img-data:/data/img:rw
     networks:
       - prox
       - professor-profile-db
