@@ -65,7 +65,7 @@ public class ProfessorImageRepositoryImpl implements ProfessorImageRepository {
 
   @Override
   public String saveProfessorImage(byte[] data) throws IOException {
-    var pngData = imageUtils.convertToPng(data);
+    var pngData = imageUtils.convertAndResizeToPng(data);
     var file = imageDirectory.resolve(UUID.randomUUID().toString() + ".png");
     return Files.write(file, pngData).getFileName().toString();
   }

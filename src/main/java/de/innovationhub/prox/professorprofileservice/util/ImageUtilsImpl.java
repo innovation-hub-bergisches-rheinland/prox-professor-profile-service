@@ -7,6 +7,8 @@ import java.util.Iterator;
 import javax.imageio.ImageIO;
 import javax.imageio.ImageReader;
 import javax.imageio.stream.ImageInputStream;
+import org.imgscalr.Scalr;
+import org.imgscalr.Scalr.Method;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -31,11 +33,12 @@ public class ImageUtilsImpl implements ImageUtils {
   }
 
   @Override
-  public byte[] convertToPng(byte[] data) throws IOException {
+  public byte[] convertAndResizeToPng(byte[] data, int width, int height) throws IOException {
     try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(data);
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
       var bufferedImage = ImageIO.read(byteArrayInputStream);
-      if (bufferedImage != null && ImageIO.write(bufferedImage, "png", byteArrayOutputStream)) {
+      var resizedImage = Scalr.resize(bufferedImage, Method.QUALITY, width, height);
+      if (resizedImage != null && ImageIO.write(resizedImage, "png", byteArrayOutputStream)) {
         return byteArrayOutputStream.toByteArray();
       } else {
         throw new IOException("No appropriate writer found.");

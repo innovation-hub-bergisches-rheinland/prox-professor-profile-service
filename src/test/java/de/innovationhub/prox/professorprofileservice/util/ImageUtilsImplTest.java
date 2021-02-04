@@ -39,7 +39,7 @@ class ImageUtilsImplTest {
   @Test
   void convertToPng() throws IOException {
     var img = resourceLoader.getResource("classpath:/img/test_jpg_img.jpg");
-    var pngValue = imageUtils.convertToPng(img.getInputStream().readAllBytes());
+    var pngValue = imageUtils.convertAndResizeToPng(img.getInputStream().readAllBytes());
 
     ImageInputStream iis = ImageIO.createImageInputStream(new ByteArrayInputStream(pngValue));
     Iterator<ImageReader> imageReaders = ImageIO.getImageReaders(iis);

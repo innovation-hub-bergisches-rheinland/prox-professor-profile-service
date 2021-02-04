@@ -60,7 +60,7 @@ class ProfessorImageRepositoryImplTest {
 
   @Test
   void when_image_save_should_save_image() throws IOException {
-    when(imageUtils.convertToPng(any(byte[].class))).then(returnsFirstArg());
+    when(imageUtils.convertAndResizeToPng(any(byte[].class))).then(returnsFirstArg());
     var bytes = new byte[] {0x00, 0x01, 0x02, 0x03};
 
     var filename = this.professorImageRepository.saveProfessorImage(bytes);
