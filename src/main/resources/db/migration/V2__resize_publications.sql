@@ -1,0 +1,1 @@
+ALTER TABLE "professor_publications" ALTER COLUMN "publication" TYPE varchar(1023);

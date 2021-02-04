@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.domain.professor;
 
+import javax.persistence.Column;
 import javax.persistence.Embeddable;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -13,5 +14,6 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode
 @Data
 public class Publication {
+  @Column(length = 1023)
   private String publication;
 }
