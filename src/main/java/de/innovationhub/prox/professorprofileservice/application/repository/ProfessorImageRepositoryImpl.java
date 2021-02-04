@@ -30,7 +30,7 @@ public class ProfessorImageRepositoryImpl implements ProfessorImageRepository {
   private final ImageUtils imageUtils;
 
   public ProfessorImageRepositoryImpl(
-      @Value("${profile.image.directory:/data/img}") String imageDirectory,
+      @Value("${profile.image.directory:./data/img}") String imageDirectory,
       ResourceLoader resourceLoader,
       ImageUtils imageUtils)
       throws IOException {
