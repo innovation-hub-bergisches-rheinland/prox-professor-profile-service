@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,8 +43,8 @@ public class ProfessorService {
     return mapper1;
   }
 
-  public Iterable<Professor> getAllProfessors() {
-    return this.professorRepository.findAll();
+  public Iterable<Professor> getAllProfessors(Sort sort) {
+    return this.professorRepository.findAll(sort);
   }
 
   public Optional<Professor> getProfessor(UUID uuid) {

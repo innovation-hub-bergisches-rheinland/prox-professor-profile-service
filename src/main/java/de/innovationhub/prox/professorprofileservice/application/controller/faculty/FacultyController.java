@@ -5,6 +5,9 @@ import de.innovationhub.prox.professorprofileservice.application.exception.facul
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -44,9 +47,10 @@ public class FacultyController {
   }
 
   @GetMapping(value = "/faculties", produces = MediaTypes.HAL_JSON_VALUE)
-  public ResponseEntity<CollectionModel<EntityModel<Faculty>>> getAllFaculties(Sort sort) {
+  public ResponseEntity<CollectionModel<EntityModel<Faculty>>> getAllFaculties(
+      @Parameter(array = @ArraySchema(schema = @Schema(type = "string"))) Sort sort) {
     var collectionModel =
-        facultyRepresentationModelAssembler.toCollectionModel(facultyService.getAllFaculties());
+        facultyRepresentationModelAssembler.toCollectionModel(facultyService.getAllFaculties(sort));
     return ResponseEntity.ok(collectionModel);
   }
 

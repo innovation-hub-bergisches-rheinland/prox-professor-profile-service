@@ -23,6 +23,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Sort;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = FacultyController.class)
@@ -48,7 +49,8 @@ class FacultyControllerTest {
   void setUp() {
     MockitoAnnotations.initMocks(FacultyControllerTest.class);
     when(facultyService.getFaculty(faculty.getId())).thenReturn(Optional.of(faculty));
-    when(facultyService.getAllFaculties()).thenReturn(Collections.singletonList(faculty));
+    when(facultyService.getAllFaculties(Sort.unsorted()))
+        .thenReturn(Collections.singletonList(faculty));
   }
 
   @Test

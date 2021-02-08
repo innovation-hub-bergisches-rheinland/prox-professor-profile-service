@@ -10,6 +10,9 @@ import de.innovationhub.prox.professorprofileservice.application.service.faculty
 import de.innovationhub.prox.professorprofileservice.application.service.professor.ProfessorService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Schema;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URLConnection;
@@ -69,10 +72,11 @@ public class ProfessorController {
   }
 
   @GetMapping("/professors")
-  public ResponseEntity<CollectionModel<EntityModel<Professor>>> getAllProfessors(Sort sort) {
+  public ResponseEntity<CollectionModel<EntityModel<Professor>>> getAllProfessors(
+      @Parameter(array = @ArraySchema(schema = @Schema(type = "string"))) Sort sort) {
     var collectionModel =
         this.professorRepresentationModelAssembler.toCollectionModel(
-            this.professorService.getAllProfessors());
+            this.professorService.getAllProfessors(sort));
     return ResponseEntity.ok(collectionModel);
   }
 

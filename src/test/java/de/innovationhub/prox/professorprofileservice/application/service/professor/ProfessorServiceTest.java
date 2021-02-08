@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Sort;
 
 @DataJpaTest
 @Import({ProfessorService.class})
@@ -70,7 +71,7 @@ class ProfessorServiceTest {
   void when_get_all_professors_then_get_all_professors() {
     this.professorRepository.save(this.professor);
 
-    Iterable<Professor> iterable = this.professorService.getAllProfessors();
+    Iterable<Professor> iterable = this.professorService.getAllProfessors(Sort.unsorted());
     List<Professor> list =
         StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
 

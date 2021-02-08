@@ -34,6 +34,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
@@ -87,7 +88,8 @@ class ProfessorControllerTest {
   void getAllProfessors() throws Exception {
     var professor = getProfessorEntity();
 
-    when(this.professorService.getAllProfessors()).thenReturn(Collections.singletonList(professor));
+    when(this.professorService.getAllProfessors(Sort.unsorted()))
+        .thenReturn(Collections.singletonList(professor));
 
     mockMvc
         .perform(get(PROFESSORS_URL).accept(MediaTypes.HAL_JSON_VALUE))
