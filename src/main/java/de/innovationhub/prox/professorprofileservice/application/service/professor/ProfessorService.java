@@ -113,4 +113,8 @@ public class ProfessorService {
   public boolean existsById(UUID id) {
     return this.professorRepository.existsById(id);
   }
+
+  public Iterable<Professor> findProfessorsByFacultyId(UUID id) {
+    return this.professorRepository.findAllByFaculty_Id(id);
+  }
 }

@@ -217,4 +217,25 @@ class ProfessorServiceTest {
   void when_not_exists_then_false() {
     assertFalse(this.professorService.existsById(this.professor.getId()));
   }
+
+  @Test
+  void when_professor_with_faculty_exists_then_found() {
+    this.professorRepository.save(this.professor);
+
+    var profs =
+        this.professorService.findProfessorsByFacultyId(this.professor.getFaculty().getId());
+    var profList = StreamSupport.stream(profs.spliterator(), false).collect(Collectors.toList());
+
+    assertEquals(1, profList.size());
+    assertEquals(this.professor, profList.get(0));
+  }
+
+  @Test
+  void when_professor_with_faculty_not_exists_then_empty() {
+    var profs =
+        this.professorService.findProfessorsByFacultyId(this.professor.getFaculty().getId());
+    var profList = StreamSupport.stream(profs.spliterator(), false).collect(Collectors.toList());
+
+    assertTrue(profList.isEmpty());
+  }
 }
