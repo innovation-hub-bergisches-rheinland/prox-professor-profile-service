@@ -58,6 +58,8 @@ public class ProfessorService {
     var optProfessor = this.professorRepository.findById(uuid);
     if (optProfessor.isPresent()) {
       var prof = optProfessor.get();
+      prof.getPublications().clear();
+      prof.getResearchSubjects().clear();
       this.modelMapper.map(professor, prof);
       return Optional.of(this.professorRepository.save(prof));
     }
