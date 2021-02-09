@@ -31,6 +31,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 
 @DataJpaTest
@@ -224,7 +225,8 @@ class ProfessorServiceTest {
     this.professorRepository.save(this.professor);
 
     var profs =
-        this.professorService.findProfessorsByFacultyId(this.professor.getFaculty().getId());
+        this.professorService.findProfessorsByFacultyId(
+            this.professor.getFaculty().getId(), Pageable.unpaged());
     var profList = StreamSupport.stream(profs.spliterator(), false).collect(Collectors.toList());
 
     assertEquals(1, profList.size());
@@ -234,7 +236,8 @@ class ProfessorServiceTest {
   @Test
   void when_professor_with_faculty_not_exists_then_empty() {
     var profs =
-        this.professorService.findProfessorsByFacultyId(this.professor.getFaculty().getId());
+        this.professorService.findProfessorsByFacultyId(
+            this.professor.getFaculty().getId(), Pageable.unpaged());
     var profList = StreamSupport.stream(profs.spliterator(), false).collect(Collectors.toList());
 
     assertTrue(profList.isEmpty());

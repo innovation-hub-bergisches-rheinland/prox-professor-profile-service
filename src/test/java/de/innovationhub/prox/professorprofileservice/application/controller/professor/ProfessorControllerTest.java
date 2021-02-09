@@ -34,6 +34,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.MediaType;
@@ -88,6 +90,8 @@ class ProfessorControllerTest {
   void getAllProfessors() throws Exception {
     var professor = getProfessorEntity();
 
+    when(this.professorService.getAllProfessors(any(Pageable.class)))
+        .thenReturn(new PageImpl<>(Collections.singletonList(professor)));
     when(this.professorService.getAllProfessors(Sort.unsorted()))
         .thenReturn(Collections.singletonList(professor));
 

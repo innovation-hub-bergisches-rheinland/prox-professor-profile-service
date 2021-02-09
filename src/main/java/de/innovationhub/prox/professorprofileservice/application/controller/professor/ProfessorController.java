@@ -23,9 +23,11 @@ import javax.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.hateoas.CollectionModel;
+import org.springframework.data.web.PagedResourcesAssembler;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -49,17 +51,20 @@ public class ProfessorController {
   private final FacultyService facultyService;
   private final ProfessorRepresentationModelAssembler professorRepresentationModelAssembler;
   private final FacultyRepresentationModelAssembler facultyRepresentationModelAssembler;
+  private final PagedResourcesAssembler<Professor> pagedResourcesAssembler;
 
   @Autowired
   public ProfessorController(
       ProfessorService professorService,
       FacultyService facultyService,
       ProfessorRepresentationModelAssembler professorRepresentationModelAssembler,
-      FacultyRepresentationModelAssembler facultyRepresentationModelAssembler) {
+      FacultyRepresentationModelAssembler facultyRepresentationModelAssembler,
+      PagedResourcesAssembler<Professor> pagedResourcesAssembler) {
     this.professorService = professorService;
     this.facultyService = facultyService;
     this.professorRepresentationModelAssembler = professorRepresentationModelAssembler;
     this.facultyRepresentationModelAssembler = facultyRepresentationModelAssembler;
+    this.pagedResourcesAssembler = pagedResourcesAssembler;
   }
 
   @ExceptionHandler({IllegalArgumentException.class, NumberFormatException.class})
@@ -72,12 +77,20 @@ public class ProfessorController {
   }
 
   @GetMapping("/professors")
-  public ResponseEntity<CollectionModel<EntityModel<Professor>>> getAllProfessors(
-      @Parameter(array = @ArraySchema(schema = @Schema(type = "string"))) Sort sort) {
-    var collectionModel =
-        this.professorRepresentationModelAssembler.toCollectionModel(
-            this.professorService.getAllProfessors(sort));
-    return ResponseEntity.ok(collectionModel);
+  public ResponseEntity<PagedModel<EntityModel<Professor>>> getAllProfessors(
+      @Parameter(array = @ArraySchema(schema = @Schema(type = "string")))
+          @RequestParam(value = "sort", defaultValue = "", required = false)
+          String[] sort,
+      @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(value = "size", defaultValue = "10", required = false) int size) {
+
+    var pageRequest = PageRequest.of(page, size, Sort.by(sort));
+
+    var pagedResult = this.professorService.getAllProfessors(pageRequest);
+
+    var model = pagedResourcesAssembler.toModel(pagedResult, professorRepresentationModelAssembler);
+
+    return ResponseEntity.ok(model);
   }
 
   @GetMapping("/professors/{id}")
