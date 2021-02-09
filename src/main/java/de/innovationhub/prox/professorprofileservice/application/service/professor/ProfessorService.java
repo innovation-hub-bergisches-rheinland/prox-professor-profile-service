@@ -123,6 +123,17 @@ public class ProfessorService {
     return this.professorRepository.existsById(id);
   }
 
+  public boolean hasImage(UUID id) {
+    var optProf = this.getProfessor(id);
+    return optProf
+        .map(
+            p ->
+                p.getProfessorImage() != null
+                    && p.getProfessorImage().getFilename() != null
+                    && !p.getProfessorImage().getFilename().isBlank())
+        .orElseGet(() -> false);
+  }
+
   public Page<Professor> findProfessorsByFacultyId(UUID id, Pageable pageable) {
     return this.professorRepository.findAllByFaculty_Id(id, pageable);
   }

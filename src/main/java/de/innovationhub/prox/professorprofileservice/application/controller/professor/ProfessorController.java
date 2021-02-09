@@ -39,11 +39,13 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 @RestController
+@RequestMapping("professors")
 public class ProfessorController {
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
@@ -76,7 +78,7 @@ public class ProfessorController {
                 HttpStatus.BAD_REQUEST.value(), "Invalid Professor ID", "Received invalid UUID"));
   }
 
-  @GetMapping("/professors")
+  @GetMapping
   public ResponseEntity<PagedModel<EntityModel<Professor>>> getAllProfessors(
       @Parameter(array = @ArraySchema(schema = @Schema(type = "string")))
           @RequestParam(value = "sort", defaultValue = "", required = false)
@@ -93,14 +95,14 @@ public class ProfessorController {
     return ResponseEntity.ok(model);
   }
 
-  @GetMapping("/professors/{id}")
+  @GetMapping("/{id}")
   public ResponseEntity<EntityModel<Professor>> getProfessor(@PathVariable UUID id) {
     var professor =
         this.professorService.getProfessor(id).orElseThrow(ProfessorNotFoundException::new);
     return ResponseEntity.ok(this.professorRepresentationModelAssembler.toModel(professor));
   }
 
-  @GetMapping(value = "/professors/{id}/faculty")
+  @GetMapping(value = "/{id}/faculty")
   public ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable UUID id) {
     var professor =
         this.professorService.getProfessor(id).orElseThrow(ProfessorNotFoundException::new);
@@ -111,7 +113,7 @@ public class ProfessorController {
     return ResponseEntity.ok(this.facultyRepresentationModelAssembler.toModel(faculty));
   }
 
-  @PutMapping(value = "/professors/{id}/faculty", consumes = MediaType.TEXT_PLAIN_VALUE)
+  @PutMapping(value = "/{id}/faculty", consumes = MediaType.TEXT_PLAIN_VALUE)
   @PreAuthorize(
       "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
   public ResponseEntity<EntityModel<Faculty>> saveFaculty(
@@ -130,7 +132,7 @@ public class ProfessorController {
     return ResponseEntity.ok(this.facultyRepresentationModelAssembler.toModel(faculty));
   }
 
-  @PostMapping(value = "/professors")
+  @PostMapping
   @PreAuthorize("hasRole('professor')")
   public ResponseEntity<EntityModel<Professor>> saveProfessor(
       @RequestBody Professor professor, HttpServletRequest request) {
@@ -140,7 +142,7 @@ public class ProfessorController {
     return ResponseEntity.ok(entityModel);
   }
 
-  @PutMapping(value = "/professors/{id}")
+  @PutMapping(value = "/{id}")
   @PreAuthorize(
       "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
   public ResponseEntity<EntityModel<Professor>> updateProfessor(
@@ -163,7 +165,7 @@ public class ProfessorController {
                             this.professorService.saveProfessor(professor))));
   }
 
-  @GetMapping(value = "/professors/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
+  @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
   public ResponseEntity<byte[]> getProfessorImage(@PathVariable UUID id) {
     if (!this.professorService.existsById(id)) {
       throw new ProfessorNotFoundException();
@@ -191,7 +193,7 @@ public class ProfessorController {
   }
 
   @PostMapping(
-      value = "/professors/{id}/image",
+      value = "/{id}/image",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
   @PreAuthorize(
       "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
@@ -209,7 +211,7 @@ public class ProfessorController {
     }
   }
 
-  @DeleteMapping(value = "/professors/{id}/image")
+  @DeleteMapping(value = "/{id}/image")
   @PreAuthorize(
       "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
   public ResponseEntity deleteProfessorImage(@PathVariable UUID id, HttpServletRequest request) {
