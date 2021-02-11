@@ -4,6 +4,8 @@ import de.innovationhub.prox.professorprofileservice.application.exception.core.
 import de.innovationhub.prox.professorprofileservice.application.exception.integrety.PathIdNotMatchingEntityIdException;
 import de.innovationhub.prox.professorprofileservice.application.exception.security.RequestUserIdNotFoundException;
 import de.innovationhub.prox.professorprofileservice.application.exception.security.SecurityException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -12,6 +14,8 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 /** General purpose exception handler which takes care of exceptions thrown in any controller */
 @ControllerAdvice
 public class ControllerAdviceExceptionHandler {
+
+  private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
   /**
    * Responds with a proper API error when a entity
@@ -40,6 +44,7 @@ public class ControllerAdviceExceptionHandler {
 
   @ExceptionHandler({Exception.class})
   public ResponseEntity<ApiError> unknownException(Exception e) {
+    logger.error("Unknown Exception", e);
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
         .body(
             new ApiError(
