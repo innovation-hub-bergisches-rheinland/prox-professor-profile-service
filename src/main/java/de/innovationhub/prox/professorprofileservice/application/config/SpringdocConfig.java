@@ -41,6 +41,12 @@ public class SpringdocConfig {
             new Components()
                 .addSecuritySchemes(
                     "Bearer",
-                    new SecurityScheme().type(Type.HTTP).scheme("Bearer").bearerFormat("JWT")));
+                    new SecurityScheme().type(Type.HTTP).scheme("Bearer").bearerFormat("JWT"))
+                .addSecuritySchemes(
+                    "OIDC",
+                    new SecurityScheme()
+                        .type(Type.OPENIDCONNECT)
+                        .openIdConnectUrl(
+                            "https://login.archi-lab.io/auth/realms/archilab/.well-known/openid-configuration")));
   }
 }
