@@ -9,7 +9,7 @@ import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
@@ -53,9 +53,13 @@ public class ProfessorOverviewRepositoryImpl implements ProfessorOverviewReposit
       }
 
       var id = prof.getId();
-      var facultyId = Optional.ofNullable(prof.getFaculty().getId()).orElse(null);
+      UUID facultyId = null;
+      String facultyName = null;
+      if (prof.getFaculty() != null) {
+        facultyId = prof.getFaculty().getId();
+        facultyName = prof.getFaculty().getName();
+      }
       var name = prof.getName();
-      var facultyName = prof.getFaculty().getName();
       var mainSubject = prof.getMainSubject();
       String[] researchSubjects =
           prof.getResearchSubjects().stream()
