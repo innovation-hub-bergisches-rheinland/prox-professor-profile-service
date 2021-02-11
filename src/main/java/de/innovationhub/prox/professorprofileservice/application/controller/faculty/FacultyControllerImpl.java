@@ -37,9 +37,10 @@ public class FacultyControllerImpl implements FacultyController {
                 HttpStatus.BAD_REQUEST.value(), "Invalid Faculty ID", "Received invalid UUID"));
   }
 
-  public ResponseEntity<CollectionModel<EntityModel<Faculty>>> getAllFaculties(Sort sort) {
+  public ResponseEntity<CollectionModel<EntityModel<Faculty>>> getAllFaculties(String[] sort) {
     var collectionModel =
-        facultyRepresentationModelAssembler.toCollectionModel(facultyService.getAllFaculties(sort));
+        facultyRepresentationModelAssembler.toCollectionModel(
+            facultyService.getAllFaculties(Sort.by(sort)));
     return ResponseEntity.ok(collectionModel);
   }
 

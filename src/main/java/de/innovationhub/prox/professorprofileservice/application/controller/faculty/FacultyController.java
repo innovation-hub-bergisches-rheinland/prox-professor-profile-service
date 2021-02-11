@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
-import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.MediaTypes;
@@ -31,8 +30,8 @@ public interface FacultyController {
       @Parameter(
               array = @ArraySchema(schema = @Schema(type = "string"), uniqueItems = true),
               description = "Comma-separated property names to sort by (e.g. `name,abbreviation`)")
-          @RequestParam(required = false)
-          Sort sort);
+          @RequestParam(required = false, defaultValue = "")
+          String[] sort);
 
   @ApiResponse(
       responseCode = "400",
