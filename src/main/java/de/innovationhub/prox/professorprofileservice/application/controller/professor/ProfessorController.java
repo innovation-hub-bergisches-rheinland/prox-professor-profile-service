@@ -92,6 +92,13 @@ public interface ProfessorController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ApiError.class)))
   @ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
       responseCode = "404",
       description = "No professor with the given ID found",
       content =
@@ -107,6 +114,14 @@ public interface ProfessorController {
   ResponseEntity<EntityModel<Faculty>> saveFaculty(
       @PathVariable UUID id, @RequestBody String facultyId, HttpServletRequest request);
 
+  @ApiResponse(responseCode = "201", description = "Created")
+  @ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
   @Operation(summary = "save professor", security = @SecurityRequirement(name = "Bearer"))
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaTypes.HAL_JSON_VALUE)
   @PreAuthorize("hasRole('professor')")
@@ -117,6 +132,13 @@ public interface ProfessorController {
   @ApiResponse(
       responseCode = "400",
       description = "Invalid UUID",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized",
       content =
           @Content(
               mediaType = MediaType.APPLICATION_JSON_VALUE,
@@ -150,6 +172,13 @@ public interface ProfessorController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ApiError.class)))
   @ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
       responseCode = "404",
       description = "No professor with the given ID found",
       content =
@@ -173,6 +202,13 @@ public interface ProfessorController {
   @ApiResponse(
       responseCode = "400",
       description = "Invalid UUID",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized",
       content =
           @Content(
               mediaType = MediaType.APPLICATION_JSON_VALUE,
