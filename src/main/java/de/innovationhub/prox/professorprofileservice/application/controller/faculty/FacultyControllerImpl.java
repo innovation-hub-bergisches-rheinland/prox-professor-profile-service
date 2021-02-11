@@ -47,11 +47,4 @@ public class FacultyControllerImpl implements FacultyController {
     var faculty = facultyService.getFaculty(id).orElseThrow(FacultyNotFoundException::new);
     return ResponseEntity.ok(facultyRepresentationModelAssembler.toModel(faculty));
   }
-
-  public ResponseEntity<EntityModel<Faculty>> saveFaculty(Faculty faculty) {
-    var savedFaculty = facultyService.saveFacultyIfNotExists(faculty);
-    return savedFaculty
-        .map(value -> ResponseEntity.ok(facultyRepresentationModelAssembler.toModel(value)))
-        .orElseGet(() -> ResponseEntity.status(HttpStatus.NO_CONTENT).build());
-  }
 }
