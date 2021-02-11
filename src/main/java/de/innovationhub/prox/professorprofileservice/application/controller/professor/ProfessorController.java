@@ -129,6 +129,8 @@ public interface ProfessorController {
       @RequestBody Professor professor, HttpServletRequest request);
 
   @Operation(summary = "update professor", security = @SecurityRequirement(name = "Bearer"))
+  @ApiResponse(responseCode = "200", description = "Updated")
+  @ApiResponse(responseCode = "201", description = "Created if professor not exists")
   @ApiResponse(
       responseCode = "400",
       description = "Invalid UUID",
