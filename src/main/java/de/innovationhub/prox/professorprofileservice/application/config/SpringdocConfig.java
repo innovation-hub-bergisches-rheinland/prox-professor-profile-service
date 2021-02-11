@@ -41,7 +41,11 @@ public class SpringdocConfig {
             new Components()
                 .addSecuritySchemes(
                     "Bearer",
-                    new SecurityScheme().type(Type.HTTP).scheme("Bearer").bearerFormat("JWT"))
+                    new SecurityScheme()
+                        .description("Required Roles: `professor`")
+                        .type(Type.HTTP)
+                        .scheme("Bearer")
+                        .bearerFormat("JWT"))
                 .addSecuritySchemes(
                     "OIDC",
                     new SecurityScheme()
