@@ -164,7 +164,7 @@ public class ProfessorControllerImpl implements ProfessorController {
     return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
   }
 
-  public ResponseEntity postProfessorImage(
+  public ResponseEntity<Void> postProfessorImage(
       UUID id, MultipartFile image, HttpServletRequest request) {
     try {
       this.professorService.saveProfessorImage(id, image.getBytes());
@@ -176,7 +176,7 @@ public class ProfessorControllerImpl implements ProfessorController {
     }
   }
 
-  public ResponseEntity deleteProfessorImage(UUID id, HttpServletRequest request) {
+  public ResponseEntity<Void> deleteProfessorImage(UUID id, HttpServletRequest request) {
     this.professorService.deleteProfessorImage(id);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
