@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("professors")
 public interface ProfessorController {
 
-  @GetMapping
+  @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
   ResponseEntity<PagedModel<EntityModel<Professor>>> getAllProfessors(
       @Parameter(array = @ArraySchema(schema = @Schema(type = "string")))
           @RequestParam(value = "sort", defaultValue = "", required = false)
@@ -33,24 +34,30 @@ public interface ProfessorController {
       @RequestParam(value = "page", defaultValue = "0", required = false) int page,
       @RequestParam(value = "size", defaultValue = "10", required = false) int size);
 
-  @GetMapping("/{id}")
+  @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
   ResponseEntity<EntityModel<Professor>> getProfessor(@PathVariable UUID id);
 
-  @GetMapping(value = "/{id}/faculty")
+  @GetMapping(value = "/{id}/faculty", produces = MediaTypes.HAL_JSON_VALUE)
   ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable UUID id);
 
-  @PutMapping(value = "/{id}/faculty", consumes = MediaType.TEXT_PLAIN_VALUE)
+  @PutMapping(
+      value = "/{id}/faculty",
+      consumes = MediaType.TEXT_PLAIN_VALUE,
+      produces = MediaTypes.HAL_JSON_VALUE)
   @PreAuthorize(
       "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
   ResponseEntity<EntityModel<Faculty>> saveFaculty(
       @PathVariable UUID id, @RequestBody String facultyId, HttpServletRequest request);
 
-  @PostMapping
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaTypes.HAL_JSON_VALUE)
   @PreAuthorize("hasRole('professor')")
   ResponseEntity<EntityModel<Professor>> saveProfessor(
       @RequestBody Professor professor, HttpServletRequest request);
 
-  @PutMapping(value = "/{id}")
+  @PutMapping(
+      value = "/{id}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaTypes.HAL_JSON_VALUE)
   @PreAuthorize(
       "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
   ResponseEntity<EntityModel<Professor>> updateProfessor(
@@ -72,5 +79,5 @@ public interface ProfessorController {
   @DeleteMapping(value = "/{id}/image")
   @PreAuthorize(
       "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
-  public ResponseEntity deleteProfessorImage(@PathVariable UUID id, HttpServletRequest request);
+  ResponseEntity deleteProfessorImage(@PathVariable UUID id, HttpServletRequest request);
 }
