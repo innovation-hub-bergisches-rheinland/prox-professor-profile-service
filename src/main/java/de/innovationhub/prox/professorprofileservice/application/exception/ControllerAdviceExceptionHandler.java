@@ -37,4 +37,12 @@ public class ControllerAdviceExceptionHandler {
     return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
         .body(new ApiError(HttpStatus.UNAUTHORIZED.value(), e.getType(), e.getMessage()));
   }
+
+  @ExceptionHandler({Exception.class})
+  public ResponseEntity<ApiError> unknownException(Exception e) {
+    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+        .body(
+            new ApiError(
+                HttpStatus.INTERNAL_SERVER_ERROR.value(), "Internal error", e.getMessage()));
+  }
 }
