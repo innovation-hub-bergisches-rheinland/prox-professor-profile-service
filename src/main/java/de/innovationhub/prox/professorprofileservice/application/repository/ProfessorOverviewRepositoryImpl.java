@@ -16,7 +16,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 
@@ -67,27 +66,28 @@ public class ProfessorOverviewRepositoryImpl implements ProfessorOverviewReposit
               .collect(Collectors.toList())
               .toArray(String[]::new);
 
-      ProfessorOverviewDto professorOverviewDto;
-      if (response != null
-          && response.getStatusCode() == HttpStatus.OK
-          && response.getBody() != null) {
+      var sumRunningProjects = 0;
+      var sumAvailableProjects = 0;
+      var sumFinishedProjects = 0;
+      if (response != null && response.getStatusCodeValue() == 200 && response.getBody() != null) {
         var stat = response.getBody();
-        professorOverviewDto =
-            new ProfessorOverviewDto(
-                id,
-                facultyId,
-                name,
-                facultyName,
-                mainSubject,
-                researchSubjects,
-                stat.getSumRunningProjects(),
-                stat.getSumFinishedProjects(),
-                stat.getSumAvailableProjects());
-      } else {
-        professorOverviewDto =
-            new ProfessorOverviewDto(
-                id, facultyId, name, facultyName, mainSubject, researchSubjects, 0, 0, 0);
+        sumRunningProjects = stat.getSumRunningProjects();
+        sumAvailableProjects = stat.getSumAvailableProjects();
+        sumFinishedProjects = stat.getSumFinishedProjects();
       }
+
+      var professorOverviewDto =
+          new ProfessorOverviewDto(
+              id,
+              facultyId,
+              name,
+              facultyName,
+              mainSubject,
+              researchSubjects,
+              sumRunningProjects,
+              sumFinishedProjects,
+              sumAvailableProjects);
+
       overviewDtoList.add(professorOverviewDto);
     }
 
