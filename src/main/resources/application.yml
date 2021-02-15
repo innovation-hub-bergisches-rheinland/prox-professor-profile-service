@@ -29,3 +29,6 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+springdoc:
+  # By default Springdoc will remove schemas which do not have references.
+  remove-broken-reference-definitions: false
