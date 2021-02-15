@@ -3,6 +3,7 @@ package de.innovationhub.prox.professorprofileservice.domain.core;
 import java.util.UUID;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;
+import javax.validation.constraints.NotNull;
 import lombok.AccessLevel;
 import lombok.Data;
 import lombok.Setter;
@@ -12,7 +13,7 @@ import lombok.Setter;
 @Setter(AccessLevel.NONE)
 public class AbstractEntity {
 
-  @Id private UUID id;
+  @Id @NotNull private UUID id;
 
   protected AbstractEntity() {
     this.id = UUID.randomUUID();
