@@ -16,6 +16,7 @@ import java.text.MessageFormat;
 import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
+import javax.validation.Valid;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -100,7 +101,7 @@ public class ProfessorControllerImpl implements ProfessorController {
   }
 
   public ResponseEntity<EntityModel<Professor>> saveProfessor(
-      Professor professor, HttpServletRequest request) {
+      @Valid Professor professor, HttpServletRequest request) {
     var entityModel =
         this.professorRepresentationModelAssembler.toModel(
             this.professorService.saveProfessor(professor));
@@ -108,7 +109,7 @@ public class ProfessorControllerImpl implements ProfessorController {
   }
 
   public ResponseEntity<EntityModel<Professor>> updateProfessor(
-      UUID id, @RequestBody Professor professor, HttpServletRequest request) {
+      UUID id, @RequestBody @Valid Professor professor, HttpServletRequest request) {
     if (!professor.getId().equals(id)) {
       throw new PathIdNotMatchingEntityIdException();
     }
