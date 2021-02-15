@@ -25,13 +25,13 @@ public class ProfessorOverviewRepositoryImpl implements ProfessorOverviewReposit
 
   private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
-  private final ProfessorService professorRepository;
+  private final ProfessorService professorService;
   private final ProjectServiceClient projectServiceClient;
 
   @Autowired
   public ProfessorOverviewRepositoryImpl(
-      final ProfessorService professorRepository, ProjectServiceClient projectServiceClient) {
-    this.professorRepository = professorRepository;
+      final ProfessorService professorService, ProjectServiceClient projectServiceClient) {
+    this.professorService = professorService;
     this.projectServiceClient = projectServiceClient;
   }
 
@@ -39,7 +39,7 @@ public class ProfessorOverviewRepositoryImpl implements ProfessorOverviewReposit
   public Iterable<ProfessorOverviewDto> getOverviewFromAllProfessors() {
     var profList =
         StreamSupport.stream(
-                professorRepository.getAllProfessors(Sort.unsorted()).spliterator(), false)
+                professorService.getAllProfessors(Sort.unsorted()).spliterator(), false)
             .collect(Collectors.toList());
 
     List<ProfessorOverviewDto> overviewDtoList = new ArrayList<>();

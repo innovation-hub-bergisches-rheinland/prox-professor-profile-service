@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.controller.professor;
 
+import static org.hamcrest.Matchers.is;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
@@ -18,16 +19,15 @@ import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImage;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Publication;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Optional;
 import java.util.UUID;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.keycloak.adapters.springboot.KeycloakAutoConfiguration;
-import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -38,6 +38,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.MediaTypes;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
@@ -66,30 +67,134 @@ class ProfessorControllerTest {
 
   @MockBean ProfessorService professorService;
 
+  Professor professor;
+
   @BeforeEach
   void setUp() {
-    MockitoAnnotations.initMocks(ProfessorControllerTest.class);
-  }
-
-  private Professor getProfessorEntity() throws IOException {
-    return new Professor(
-        UUID.randomUUID(),
-        "Prof. Dr. Xavier Tester",
-        "2010",
-        "IoT",
-        new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
-        new ContactInformation(),
-        new ProfessorImage("123.png"),
-        Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
-        Arrays.asList(
-            new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
-        "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
+    this.professor =
+        new Professor(
+            UUID.randomUUID(),
+            "Prof. Dr. Xavier Tester",
+            "2010",
+            "IoT",
+            new Faculty("F10", "Fakultät für Informatik und Ingenieurwissenschaften"),
+            new ContactInformation(),
+            new ProfessorImage("123.png"),
+            Arrays.asList(new ResearchSubject("IoT"), new ResearchSubject("Mobile")),
+            Arrays.asList(
+                new Publication("Book"), new Publication("Paper 1"), new Publication("Paper 2")),
+            "Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum. Stet clita kasd gubergren, no sea takimata sanctus est Lorem ipsum dolor sit amet.");
   }
 
   @Test
-  void getAllProfessors() throws Exception {
-    var professor = getProfessorEntity();
+  @DisplayName("CollectionModel should contain self link")
+  void collectionModelShouldContainSelfLink() throws Exception {
+    when(this.professorService.getAllProfessors(any(Pageable.class)))
+        .thenReturn(new PageImpl<>(Collections.singletonList(professor)));
+    when(this.professorService.getAllProfessors(Sort.unsorted()))
+        .thenReturn(Collections.singletonList(professor));
 
+    mockMvc
+        .perform(get(PROFESSORS_URL).accept(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links.self.href").exists());
+  }
+
+  @Test
+  @DisplayName("EntityModel collection should contain self link")
+  void entityModelCollectionShouldContainSelfLink() throws Exception {
+    when(this.professorService.getAllProfessors(any(Pageable.class)))
+        .thenReturn(new PageImpl<>(Collections.singletonList(professor)));
+    when(this.professorService.getAllProfessors(Sort.unsorted()))
+        .thenReturn(Collections.singletonList(professor));
+
+    mockMvc
+        .perform(get(PROFESSORS_URL).accept(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._embedded.professorList[0]._links.self.href").exists());
+  }
+
+  @Test
+  @DisplayName("EntityModel should contain self link")
+  void entityModelShouldContainSelfLink() throws Exception {
+    when(this.professorService.getProfessor(professor.getId())).thenReturn(Optional.of(professor));
+
+    mockMvc
+        .perform(get(PROFESSORS_ID_URL, this.professor.getId()).accept(MediaTypes.HAL_JSON_VALUE))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links.self.href").exists());
+  }
+
+  @Test
+  @DisplayName("When Professor not found should return 404")
+  void whenProfessorNotFoundShouldReturn404() throws Exception {
+    mockMvc.perform(get(PROFESSORS_ID_URL, UUID.randomUUID())).andExpect(status().isNotFound());
+  }
+
+  @Test
+  @DisplayName("When invalid UUID should return error")
+  void whenInvalidUUIDShouldReturnError() throws Exception {
+    mockMvc
+        .perform(get(PROFESSORS_ID_URL, "abcdefghijklmno"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
+        .andExpect(jsonPath("$.error").isNotEmpty())
+        .andExpect(jsonPath("$.message").isNotEmpty());
+  }
+
+  @Test
+  @DisplayName("Professor with faculty should contain faculty link")
+  void shouldContainFacultyLink() throws Exception {
+    when(this.professorService.getProfessor(this.professor.getId()))
+        .thenReturn(Optional.of(this.professor));
+
+    mockMvc
+        .perform(get(PROFESSORS_ID_URL, this.professor.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links.faculty.href").isNotEmpty());
+  }
+
+  @Test
+  @DisplayName("Professor without faculty should not contain faculty link")
+  void shouldNotContainFacultyLink() throws Exception {
+    this.professor.setFaculty(null);
+    when(this.professorService.getProfessor(this.professor.getId()))
+        .thenReturn(Optional.of(this.professor));
+
+    mockMvc
+        .perform(get(PROFESSORS_ID_URL, this.professor.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links.faculty").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("Professor with profile image should contain image link")
+  void shouldContainImageLink() throws Exception {
+    when(this.professorService.getProfessor(this.professor.getId()))
+        .thenReturn(Optional.of(this.professor));
+
+    mockMvc
+        .perform(get(PROFESSORS_ID_URL, this.professor.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links.image.href").isNotEmpty());
+  }
+
+  @Test
+  @DisplayName("Professor without profile image should not contain image link")
+  void shouldNotContainImageLink() throws Exception {
+    this.professor.setProfessorImage(null);
+    when(this.professorService.getProfessor(this.professor.getId()))
+        .thenReturn(Optional.of(this.professor));
+
+    mockMvc
+        .perform(get(PROFESSORS_ID_URL, this.professor.getId()))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$._links.image").doesNotExist());
+  }
+
+  @Test
+  @DisplayName("Professor from collection should equal expected professor")
+  void getAllProfessors() throws Exception {
     when(this.professorService.getAllProfessors(any(Pageable.class)))
         .thenReturn(new PageImpl<>(Collections.singletonList(professor)));
     when(this.professorService.getAllProfessors(Sort.unsorted()))
@@ -99,11 +204,11 @@ class ProfessorControllerTest {
         .perform(get(PROFESSORS_URL).accept(MediaTypes.HAL_JSON_VALUE))
         .andDo(print())
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$._embedded.professorList.length()", Matchers.is(1)))
+        .andExpect(jsonPath("$._embedded.professorList.length()", is(1)))
         .andExpect(
             jsonPath(
                 "$._embedded.professorList[0].id",
-                Matchers.is(
+                is(
                     professor
                         .getId()
                         .toString()))) // Just match ID, this is not a serialization test
@@ -111,9 +216,6 @@ class ProfessorControllerTest {
             jsonPath(
                 "$._embedded.professorList[0]._links.professor.href",
                 Matchers.any(String.class))) // Check whether a link is present, this is not a
-        // resourceassembler test
-        .andExpect(
-            jsonPath("$._embedded.professorList[0]._links.self.href", Matchers.any(String.class)))
         .andExpect(
             jsonPath("$._embedded.professorList[0]._links.image.href", Matchers.any(String.class)))
         .andExpect(
@@ -123,9 +225,8 @@ class ProfessorControllerTest {
   }
 
   @Test
+  @DisplayName("Professor should equal expected professor")
   void getProfessor() throws Exception {
-    var professor = getProfessorEntity();
-
     when(this.professorService.getProfessor(professor.getId())).thenReturn(Optional.of(professor));
 
     mockMvc
@@ -138,20 +239,13 @@ class ProfessorControllerTest {
                 Matchers.is(
                     professor
                         .getId()
-                        .toString()))) // Just match ID, this is not a serialization test
-        .andExpect(
-            jsonPath(
-                "$._links.self.href",
-                Matchers.any(String.class))) // Check whether a link is present, this is not a
-        // resourceassembler test
-        .andExpect(jsonPath("$._links.image.href", Matchers.any(String.class)))
-        .andExpect(jsonPath("$._links.faculty.href", Matchers.any(String.class)));
+                        .toString()))); // Just match ID, this is not a serialization test
   }
 
   @Test
+  @DisplayName("Professor image should equal expected image")
   @SuppressWarnings("java:S2970")
   void getProfessorImage() throws Exception {
-    var professor = getProfessorEntity();
     var imageData =
         resourceLoader
             .getResource("classpath:/img/blank-profile-picture.png")
@@ -171,10 +265,9 @@ class ProfessorControllerTest {
   }
 
   @Test
+  @DisplayName("Should save professor image")
   @SuppressWarnings("java:S2970")
   void postProfessorImage() throws Exception {
-    var professor = getProfessorEntity();
-
     var data =
         resourceLoader
             .getResource("classpath:/img/blank-profile-picture.png")
@@ -192,9 +285,8 @@ class ProfessorControllerTest {
   }
 
   @Test
+  @DisplayName("Should return professor faculty")
   void getProfessorFaculty() throws Exception {
-    var professor = getProfessorEntity();
-
     when(professorService.getProfessor(professor.getId())).thenReturn(Optional.of(professor));
 
     Faculty faculty = professor.getFaculty();
@@ -209,9 +301,8 @@ class ProfessorControllerTest {
   }
 
   @Test
+  @DisplayName("Should set professor faculty")
   void setProfessorFaculty() throws Exception {
-    var professor = getProfessorEntity();
-
     Faculty faculty = new Faculty("F11", "Fakultät für Angewandte Naturwissenschaften");
 
     when(professorService.getProfessor(professor.getId())).thenReturn(Optional.of(professor));
@@ -231,9 +322,8 @@ class ProfessorControllerTest {
   }
 
   @Test
+  @DisplayName("Should delete professor image")
   void deleteProfessorImage() throws Exception {
-    var professor = getProfessorEntity();
-
     mockMvc
         .perform(delete(PROFESSORS_ID_IMAGE_URL, professor.getId()))
         .andDo(print())

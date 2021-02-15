@@ -23,8 +23,11 @@ public class ProfessorRepresentationModelAssembler
       resource.add(linkTo(methodOn(ProfessorController.class).getProfessor(id)).withSelfRel());
       resource.add(
           linkTo(methodOn(ProfessorController.class).getProfessor(id)).withRel("professor"));
-      resource.add(
-          linkTo(methodOn(ProfessorController.class).getProfessorImage(id)).withRel("image"));
+      if (professor.getProfessorImage() != null
+          && professor.getProfessorImage().getFilename() != null) {
+        resource.add(
+            linkTo(methodOn(ProfessorController.class).getProfessorImage(id)).withRel("image"));
+      }
       if (professor.getFaculty() != null) {
         resource.add(
             linkTo(methodOn(FacultyController.class).getFaculty(professor.getFaculty().getId()))
