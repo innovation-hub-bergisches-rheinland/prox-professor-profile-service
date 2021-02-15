@@ -18,7 +18,6 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -99,6 +98,13 @@ public interface ProfessorController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ApiError.class)))
   @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
       responseCode = "404",
       description = "No professor with the given ID found",
       content =
@@ -109,8 +115,6 @@ public interface ProfessorController {
       value = "/{id}/faculty",
       consumes = MediaType.TEXT_PLAIN_VALUE,
       produces = MediaTypes.HAL_JSON_VALUE)
-  @PreAuthorize(
-      "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
   ResponseEntity<EntityModel<Faculty>> saveFaculty(
       @PathVariable UUID id, @RequestBody String facultyId, HttpServletRequest request);
 
@@ -122,9 +126,15 @@ public interface ProfessorController {
           @Content(
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
   @Operation(summary = "save professor", security = @SecurityRequirement(name = "Bearer"))
   @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaTypes.HAL_JSON_VALUE)
-  @PreAuthorize("hasRole('professor')")
   ResponseEntity<EntityModel<Professor>> saveProfessor(
       @RequestBody Professor professor, HttpServletRequest request);
 
@@ -146,6 +156,13 @@ public interface ProfessorController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ApiError.class)))
   @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
       responseCode = "404",
       description = "No professor with the given ID found",
       content =
@@ -156,8 +173,6 @@ public interface ProfessorController {
       value = "/{id}",
       consumes = MediaType.APPLICATION_JSON_VALUE,
       produces = MediaTypes.HAL_JSON_VALUE)
-  @PreAuthorize(
-      "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
   ResponseEntity<EntityModel<Professor>> updateProfessor(
       @PathVariable UUID id, @RequestBody Professor professor, HttpServletRequest request);
 
@@ -181,6 +196,13 @@ public interface ProfessorController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ApiError.class)))
   @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
       responseCode = "404",
       description = "No professor with the given ID found",
       content =
@@ -190,8 +212,6 @@ public interface ProfessorController {
   @PostMapping(
       value = "/{id}/image",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-  @PreAuthorize(
-      "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
   ResponseEntity<Void> postProfessorImage(
       @Parameter(required = true, description = "UUID of Professor") @PathVariable UUID id,
       @Parameter(required = true, description = "GIF / PNG / JPG Image")
@@ -216,6 +236,13 @@ public interface ProfessorController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ApiError.class)))
   @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
       responseCode = "404",
       description = "No professor with the given ID found",
       content =
@@ -223,7 +250,5 @@ public interface ProfessorController {
               mediaType = MediaType.APPLICATION_JSON_VALUE,
               schema = @Schema(implementation = ApiError.class)))
   @DeleteMapping(value = "/{id}/image")
-  @PreAuthorize(
-      "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
   ResponseEntity<Void> deleteProfessorImage(@PathVariable UUID id, HttpServletRequest request);
 }

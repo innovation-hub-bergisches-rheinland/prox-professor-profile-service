@@ -7,10 +7,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-import de.innovationhub.prox.professorprofileservice.application.config.KeycloakConfig;
-import de.innovationhub.prox.professorprofileservice.application.config.SecurityConfig;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.ProfessorRepresentationModelAssembler;
+import de.innovationhub.prox.professorprofileservice.application.security.AuthenticationUtils;
 import de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyService;
 import de.innovationhub.prox.professorprofileservice.application.service.professor.ProfessorService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
@@ -27,7 +26,7 @@ import org.hamcrest.Matchers;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.keycloak.adapters.springboot.KeycloakAutoConfiguration;
+import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -41,17 +40,12 @@ import org.springframework.hateoas.MediaTypes;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(controllers = ProfessorController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import({
-  SecurityConfig.class,
-  KeycloakAutoConfiguration.class,
-  KeycloakConfig.class,
-  ProfessorRepresentationModelAssembler.class,
-  FacultyRepresentationModelAssembler.class
-})
+@Import({ProfessorRepresentationModelAssembler.class, FacultyRepresentationModelAssembler.class})
 class ProfessorControllerTest {
 
   private static final String PROFESSORS_URL = "/professors";
@@ -63,9 +57,11 @@ class ProfessorControllerTest {
 
   @Autowired ResourceLoader resourceLoader;
 
+  @MockBean KeycloakSpringBootConfigResolver keycloakSpringBootConfigResolver;
   @MockBean FacultyService facultyService;
 
   @MockBean ProfessorService professorService;
+  @MockBean AuthenticationUtils authenticationUtils;
 
   Professor professor;
 
@@ -135,7 +131,7 @@ class ProfessorControllerTest {
   @DisplayName("When invalid UUID should return error")
   void whenInvalidUUIDShouldReturnError() throws Exception {
     mockMvc
-        .perform(get(PROFESSORS_ID_URL, "abcdefghijklmno"))
+        .perform(get(PROFESSORS_ID_URL, "abcdefghijklmnopqrstuvwxyz0123456789"))
         .andExpect(status().isBadRequest())
         .andExpect(jsonPath("$.status", is(HttpStatus.BAD_REQUEST.value())))
         .andExpect(jsonPath("$.error").isNotEmpty())
@@ -266,6 +262,7 @@ class ProfessorControllerTest {
 
   @Test
   @DisplayName("Should save professor image")
+  @WithMockUser(roles = {"professor"})
   @SuppressWarnings("java:S2970")
   void postProfessorImage() throws Exception {
     var data =
@@ -302,6 +299,7 @@ class ProfessorControllerTest {
 
   @Test
   @DisplayName("Should set professor faculty")
+  @WithMockUser(roles = {"professor"})
   void setProfessorFaculty() throws Exception {
     Faculty faculty = new Faculty("F11", "Fakultät für Angewandte Naturwissenschaften");
 
@@ -323,6 +321,7 @@ class ProfessorControllerTest {
 
   @Test
   @DisplayName("Should delete professor image")
+  @WithMockUser(roles = {"professor"})
   void deleteProfessorImage() throws Exception {
     mockMvc
         .perform(delete(PROFESSORS_ID_IMAGE_URL, professor.getId()))

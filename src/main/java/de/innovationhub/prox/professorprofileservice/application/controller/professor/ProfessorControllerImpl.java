@@ -1,6 +1,5 @@
 package de.innovationhub.prox.professorprofileservice.application.controller.professor;
 
-import de.innovationhub.prox.professorprofileservice.application.exception.ApiError;
 import de.innovationhub.prox.professorprofileservice.application.exception.faculty.FacultyNotFoundException;
 import de.innovationhub.prox.professorprofileservice.application.exception.integrety.PathIdNotMatchingEntityIdException;
 import de.innovationhub.prox.professorprofileservice.application.exception.professor.ProfessorNotFoundException;
@@ -28,7 +27,6 @@ import org.springframework.hateoas.PagedModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -55,15 +53,6 @@ public class ProfessorControllerImpl implements ProfessorController {
     this.professorRepresentationModelAssembler = professorRepresentationModelAssembler;
     this.facultyRepresentationModelAssembler = facultyRepresentationModelAssembler;
     this.pagedResourcesAssembler = pagedResourcesAssembler;
-  }
-
-  @ExceptionHandler({IllegalArgumentException.class, NumberFormatException.class})
-  public ResponseEntity<ApiError> numberFormatException(Exception e) {
-    e.printStackTrace();
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(
-            new ApiError(
-                HttpStatus.BAD_REQUEST.value(), "Invalid Professor ID", "Received invalid UUID"));
   }
 
   public ResponseEntity<PagedModel<EntityModel<Professor>>> getAllProfessors(
@@ -115,7 +104,7 @@ public class ProfessorControllerImpl implements ProfessorController {
     var entityModel =
         this.professorRepresentationModelAssembler.toModel(
             this.professorService.saveProfessor(professor));
-    return ResponseEntity.ok(entityModel);
+    return ResponseEntity.status(HttpStatus.CREATED).body(entityModel);
   }
 
   public ResponseEntity<EntityModel<Professor>> updateProfessor(
