@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.exception;
 
+import javax.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -7,7 +8,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class ApiError {
-  private int code;
-  private String error;
-  private String message;
+  @NotNull private int code;
+  @NotNull private String error;
+  @NotNull private String message;
 }
