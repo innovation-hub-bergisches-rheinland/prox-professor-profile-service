@@ -1,202 +1,254 @@
 package de.innovationhub.prox.professorprofileservice.application.controller.professor;
 
 import de.innovationhub.prox.professorprofileservice.application.exception.ApiError;
-import de.innovationhub.prox.professorprofileservice.application.exception.faculty.FacultyNotFoundException;
-import de.innovationhub.prox.professorprofileservice.application.exception.integrety.PathIdNotMatchingEntityIdException;
-import de.innovationhub.prox.professorprofileservice.application.exception.professor.ProfessorNotFoundException;
-import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;
-import de.innovationhub.prox.professorprofileservice.application.hatoeas.ProfessorRepresentationModelAssembler;
-import de.innovationhub.prox.professorprofileservice.application.service.faculty.FacultyService;
-import de.innovationhub.prox.professorprofileservice.application.service.professor.ProfessorService;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.net.URLConnection;
-import java.text.MessageFormat;
-import java.util.Optional;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Sort;
-import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.http.HttpStatus;
+import org.springframework.hateoas.MediaTypes;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
 
-@RestController
-public class ProfessorController {
+@Tag(name = "Professor API", description = "APIs for professors")
+@RequestMapping("professors")
+public interface ProfessorController {
 
-  private final Logger logger = LoggerFactory.getLogger(this.getClass());
-  private final ProfessorService professorService;
-  private final FacultyService facultyService;
-  private final ProfessorRepresentationModelAssembler professorRepresentationModelAssembler;
-  private final FacultyRepresentationModelAssembler facultyRepresentationModelAssembler;
+  @Operation(summary = "get all professors")
+  @ApiResponse(responseCode = "200", description = "OK")
+  @GetMapping(produces = MediaTypes.HAL_JSON_VALUE)
+  ResponseEntity<PagedModel<EntityModel<Professor>>> getAllProfessors(
+      @Parameter(array = @ArraySchema(schema = @Schema(type = "string")))
+          @RequestParam(value = "sort", defaultValue = "", required = false)
+          String[] sort,
+      @RequestParam(value = "page", defaultValue = "0", required = false) int page,
+      @RequestParam(value = "size", defaultValue = "10", required = false) int size);
 
-  @Autowired
-  public ProfessorController(
-      ProfessorService professorService,
-      FacultyService facultyService,
-      ProfessorRepresentationModelAssembler professorRepresentationModelAssembler,
-      FacultyRepresentationModelAssembler facultyRepresentationModelAssembler) {
-    this.professorService = professorService;
-    this.facultyService = facultyService;
-    this.professorRepresentationModelAssembler = professorRepresentationModelAssembler;
-    this.facultyRepresentationModelAssembler = facultyRepresentationModelAssembler;
-  }
+  @Operation(summary = "get professor")
+  @ApiResponse(responseCode = "200", description = "OK")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid UUID",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "404",
+      description = "No professor with the given ID found",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @GetMapping(value = "/{id}", produces = MediaTypes.HAL_JSON_VALUE)
+  ResponseEntity<EntityModel<Professor>> getProfessor(@PathVariable UUID id);
 
-  @ExceptionHandler({IllegalArgumentException.class, NumberFormatException.class})
-  public ResponseEntity<ApiError> numberFormatException(Exception e) {
-    e.printStackTrace();
-    return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-        .body(
-            new ApiError(
-                HttpStatus.BAD_REQUEST.value(), "Invalid Professor ID", "Received invalid UUID"));
-  }
+  @Operation(summary = "get professors faculty")
+  @ApiResponse(responseCode = "200", description = "OK")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid UUID",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "404",
+      description = "No professor with the given ID found",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @GetMapping(value = "/{id}/faculty", produces = MediaTypes.HAL_JSON_VALUE)
+  ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable UUID id);
 
-  @GetMapping("/professors")
-  public ResponseEntity<CollectionModel<EntityModel<Professor>>> getAllProfessors(Sort sort) {
-    var collectionModel =
-        this.professorRepresentationModelAssembler.toCollectionModel(
-            this.professorService.getAllProfessors());
-    return ResponseEntity.ok(collectionModel);
-  }
+  @Operation(summary = "set professors faculty", security = @SecurityRequirement(name = "Bearer"))
+  @ApiResponse(responseCode = "200", description = "OK")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid UUID",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "404",
+      description = "No professor with the given ID found",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @PutMapping(
+      value = "/{id}/faculty",
+      consumes = MediaType.TEXT_PLAIN_VALUE,
+      produces = MediaTypes.HAL_JSON_VALUE)
+  ResponseEntity<EntityModel<Faculty>> saveFaculty(
+      @PathVariable UUID id, @RequestBody String facultyId, HttpServletRequest request);
 
-  @GetMapping("/professors/{id}")
-  public ResponseEntity<EntityModel<Professor>> getProfessor(@PathVariable UUID id) {
-    var professor =
-        this.professorService.getProfessor(id).orElseThrow(ProfessorNotFoundException::new);
-    return ResponseEntity.ok(this.professorRepresentationModelAssembler.toModel(professor));
-  }
+  @ApiResponse(responseCode = "201", description = "Created")
+  @ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @Operation(summary = "save professor", security = @SecurityRequirement(name = "Bearer"))
+  @PostMapping(consumes = MediaType.APPLICATION_JSON_VALUE, produces = MediaTypes.HAL_JSON_VALUE)
+  ResponseEntity<EntityModel<Professor>> saveProfessor(
+      @RequestBody Professor professor, HttpServletRequest request);
 
-  @GetMapping(value = "/professors/{id}/faculty")
-  public ResponseEntity<EntityModel<Faculty>> getFaculty(@PathVariable UUID id) {
-    var professor =
-        this.professorService.getProfessor(id).orElseThrow(ProfessorNotFoundException::new);
+  @Operation(summary = "update professor", security = @SecurityRequirement(name = "Bearer"))
+  @ApiResponse(responseCode = "200", description = "Updated")
+  @ApiResponse(responseCode = "201", description = "Created if professor not exists")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid UUID",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "404",
+      description = "No professor with the given ID found",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @PutMapping(
+      value = "/{id}",
+      consumes = MediaType.APPLICATION_JSON_VALUE,
+      produces = MediaTypes.HAL_JSON_VALUE)
+  ResponseEntity<EntityModel<Professor>> updateProfessor(
+      @PathVariable UUID id, @RequestBody Professor professor, HttpServletRequest request);
 
-    var optionalFaculty = Optional.ofNullable(professor.getFaculty());
-    var faculty = optionalFaculty.orElseThrow(FacultyNotFoundException::new);
+  @Operation(summary = "get professor image")
+  @GetMapping(value = "/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
+  ResponseEntity<byte[]> getProfessorImage(@PathVariable UUID id);
 
-    return ResponseEntity.ok(this.facultyRepresentationModelAssembler.toModel(faculty));
-  }
-
-  @PutMapping(value = "/professors/{id}/faculty", consumes = MediaType.TEXT_PLAIN_VALUE)
-  @PreAuthorize(
-      "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
-  public ResponseEntity<EntityModel<Faculty>> saveFaculty(
-      @PathVariable UUID id, @RequestBody String facultyId, HttpServletRequest request) {
-
-    var optProfessor = this.professorService.getProfessor(id);
-    var optFaculty = this.facultyService.getFaculty(UUID.fromString(facultyId));
-
-    var professor = optProfessor.orElseThrow(ProfessorNotFoundException::new);
-    var faculty = optFaculty.orElseThrow(FacultyNotFoundException::new);
-
-    professor.setFaculty(faculty);
-
-    this.professorService.saveProfessor(professor);
-
-    return ResponseEntity.ok(this.facultyRepresentationModelAssembler.toModel(faculty));
-  }
-
-  @PostMapping(value = "/professors")
-  @PreAuthorize("hasRole('professor')")
-  public ResponseEntity<EntityModel<Professor>> saveProfessor(
-      @RequestBody Professor professor, HttpServletRequest request) {
-    var entityModel =
-        this.professorRepresentationModelAssembler.toModel(
-            this.professorService.saveProfessor(professor));
-    return ResponseEntity.ok(entityModel);
-  }
-
-  @PutMapping(value = "/professors/{id}")
-  @PreAuthorize(
-      "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
-  public ResponseEntity<EntityModel<Professor>> updateProfessor(
-      @PathVariable UUID id, @RequestBody Professor professor, HttpServletRequest request) {
-    if (!professor.getId().equals(id)) {
-      throw new PathIdNotMatchingEntityIdException();
-    }
-
-    var savedProfessor = this.professorService.updateProfessor(id, professor);
-
-    // Try to update professor, otherwise create the professor
-    // If professor was updated return 200 OK, if created 201 CREATED
-    return savedProfessor
-        .map(value -> ResponseEntity.ok(this.professorRepresentationModelAssembler.toModel(value)))
-        .orElseGet(
-            () ->
-                ResponseEntity.status(HttpStatus.CREATED)
-                    .body(
-                        this.professorRepresentationModelAssembler.toModel(
-                            this.professorService.saveProfessor(professor))));
-  }
-
-  @GetMapping(value = "/professors/{id}/image", produces = MediaType.IMAGE_PNG_VALUE)
-  public ResponseEntity<byte[]> getProfessorImage(@PathVariable UUID id) {
-    if (!this.professorService.existsById(id)) {
-      throw new ProfessorNotFoundException();
-    }
-
-    var optProfileImage = this.professorService.getProfessorImage(id);
-
-    if (optProfileImage.isPresent()) {
-      var profileImage = optProfileImage.get();
-      try {
-        String contentType =
-            URLConnection.guessContentTypeFromStream(new ByteArrayInputStream(profileImage));
-        if (contentType != null) {
-          return ResponseEntity.ok()
-              .contentType(MediaType.parseMediaType(contentType))
-              .body(profileImage);
-        }
-      } catch (IOException e) {
-        logger.error(
-            MessageFormat.format("Could not load profile image with Professor ID {0}", id), e);
-      }
-    }
-
-    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-  }
-
+  @Operation(summary = "uploads profile picture", security = @SecurityRequirement(name = "Bearer"))
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid UUID",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "404",
+      description = "No professor with the given ID found",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
   @PostMapping(
-      value = "/professors/{id}/image",
+      value = "/{id}/image",
       consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-  @PreAuthorize(
-      "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
-  public ResponseEntity postProfessorImage(
-      @PathVariable UUID id,
-      @RequestParam("image") MultipartFile image,
-      HttpServletRequest request) {
-    try {
-      this.professorService.saveProfessorImage(id, image.getBytes());
-      return ResponseEntity.ok().build();
-    } catch (IOException e) {
-      logger.error(
-          MessageFormat.format("Could not save profile image with Professor ID {0}", id), e);
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-    }
-  }
+  ResponseEntity<Void> postProfessorImage(
+      @Parameter(required = true, description = "UUID of Professor") @PathVariable UUID id,
+      @Parameter(required = true, description = "GIF / PNG / JPG Image")
+          @RequestPart(value = "image", required = true)
+          MultipartFile image,
+      HttpServletRequest request);
 
-  @DeleteMapping(value = "/professors/{id}/image")
-  @PreAuthorize(
-      "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(#request, #id)")
-  public ResponseEntity deleteProfessorImage(@PathVariable UUID id, HttpServletRequest request) {
-    this.professorService.deleteProfessorImage(id);
-    return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
-  }
+  @Operation(summary = "deletes profile picture", security = @SecurityRequirement(name = "Bearer"))
+  @ApiResponse(responseCode = "204", description = "Deleted successfully")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid UUID",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "403",
+      description = "Forbidden",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "404",
+      description = "No professor with the given ID found",
+      content =
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @DeleteMapping(value = "/{id}/image")
+  ResponseEntity<Void> deleteProfessorImage(@PathVariable UUID id, HttpServletRequest request);
 }

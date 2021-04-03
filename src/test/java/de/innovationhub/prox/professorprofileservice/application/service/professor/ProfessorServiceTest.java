@@ -31,6 +31,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @DataJpaTest
 @Import({ProfessorService.class})
@@ -70,7 +72,7 @@ class ProfessorServiceTest {
   void when_get_all_professors_then_get_all_professors() {
     this.professorRepository.save(this.professor);
 
-    Iterable<Professor> iterable = this.professorService.getAllProfessors();
+    Iterable<Professor> iterable = this.professorService.getAllProfessors(Sort.unsorted());
     List<Professor> list =
         StreamSupport.stream(iterable.spliterator(), false).collect(Collectors.toList());
 
@@ -216,5 +218,28 @@ class ProfessorServiceTest {
   @Test
   void when_not_exists_then_false() {
     assertFalse(this.professorService.existsById(this.professor.getId()));
+  }
+
+  @Test
+  void when_professor_with_faculty_exists_then_found() {
+    this.professorRepository.save(this.professor);
+
+    var profs =
+        this.professorService.findProfessorsByFacultyId(
+            this.professor.getFaculty().getId(), Pageable.unpaged());
+    var profList = StreamSupport.stream(profs.spliterator(), false).collect(Collectors.toList());
+
+    assertEquals(1, profList.size());
+    assertEquals(this.professor, profList.get(0));
+  }
+
+  @Test
+  void when_professor_with_faculty_not_exists_then_empty() {
+    var profs =
+        this.professorService.findProfessorsByFacultyId(
+            this.professor.getFaculty().getId(), Pageable.unpaged());
+    var profList = StreamSupport.stream(profs.spliterator(), false).collect(Collectors.toList());
+
+    assertTrue(profList.isEmpty());
   }
 }

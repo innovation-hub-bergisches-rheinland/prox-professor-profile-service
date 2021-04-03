@@ -9,7 +9,7 @@ keycloak:
   cors: false
   principal-attribute: preferred_username
   realm: archilab
-  resource: prox-professor-profile-service # Not available yet
+  resource: prox-professor-profile-service
 server:
   port: 9005
   forward-headers-strategy: native
@@ -29,3 +29,6 @@ spring:
         jdbc:
           lob:
             non_contextual_creation: true
+springdoc:
+  # By default Springdoc will remove schemas which do not have references.
+  remove-broken-reference-definitions: false

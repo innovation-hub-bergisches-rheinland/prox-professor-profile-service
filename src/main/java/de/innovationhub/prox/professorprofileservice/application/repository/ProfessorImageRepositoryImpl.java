@@ -42,9 +42,13 @@ public class ProfessorImageRepositoryImpl implements ProfessorImageRepository {
       Files.createDirectories(directory);
     }
     // Throw error when provided directory is not a directory or is not writeable
-    if (!Files.isDirectory(directory) || !Files.isWritable(directory)) {
-      logger.error("{} is not a directory or is not writable", directory);
-      throw new IOException(directory + " is not a directory or not writable");
+    if (!Files.isDirectory(directory)) {
+      logger.error("{} is not a directory", directory);
+      throw new IOException(directory + " is not a directory");
+    }
+    if (!Files.isWritable(directory)) {
+      logger.error("{} is not writable", directory);
+      throw new IOException(directory + " is not writable");
     }
     this.imageDirectory = directory;
   }
@@ -65,7 +69,7 @@ public class ProfessorImageRepositoryImpl implements ProfessorImageRepository {
 
   @Override
   public String saveProfessorImage(byte[] data) throws IOException {
-    var pngData = imageUtils.convertToPng(data);
+    var pngData = imageUtils.convertAndResizeToPng(data);
     var file = imageDirectory.resolve(UUID.randomUUID().toString() + ".png");
     return Files.write(file, pngData).getFileName().toString();
   }

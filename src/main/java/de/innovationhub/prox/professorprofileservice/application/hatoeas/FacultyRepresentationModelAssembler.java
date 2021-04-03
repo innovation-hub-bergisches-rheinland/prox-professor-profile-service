@@ -5,7 +5,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 import de.innovationhub.prox.professorprofileservice.application.controller.faculty.FacultyController;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
-import org.springframework.data.domain.Sort;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.server.SimpleRepresentationModelAssembler;
@@ -29,6 +28,6 @@ public class FacultyRepresentationModelAssembler
   @Override
   public void addLinks(CollectionModel<EntityModel<Faculty>> resources) {
     resources.add(
-        linkTo(methodOn(FacultyController.class).getAllFaculties(Sort.unsorted())).withSelfRel());
+        linkTo(methodOn(FacultyController.class).getAllFaculties(new String[] {})).withSelfRel());
   }
 }

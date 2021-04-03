@@ -4,6 +4,7 @@ import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.FacultyRepository;
 import java.util.Optional;
 import java.util.UUID;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,8 +16,8 @@ public class FacultyService {
     this.facultyRepository = facultyRepository;
   }
 
-  public Iterable<Faculty> getAllFaculties() {
-    return this.facultyRepository.findAll();
+  public Iterable<Faculty> getAllFaculties(Sort sort) {
+    return this.facultyRepository.findAll(sort);
   }
 
   public Optional<Faculty> getFaculty(UUID uuid) {

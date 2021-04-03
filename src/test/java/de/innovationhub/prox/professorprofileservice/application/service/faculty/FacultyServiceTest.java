@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import org.springframework.context.annotation.Import;
+import org.springframework.data.domain.Sort;
 
 @DataJpaTest
 @Import(FacultyService.class)
@@ -26,7 +27,7 @@ class FacultyServiceTest {
     facultyRepository.save(faculty);
     facultyRepository.save(faculty2);
 
-    var result = facultyService.getAllFaculties();
+    var result = facultyService.getAllFaculties(Sort.unsorted());
     var list = StreamSupport.stream(result.spliterator(), false).collect(Collectors.toList());
     assertEquals(2, list.size());
     assertTrue(list.containsAll(Arrays.asList(faculty, faculty2)));

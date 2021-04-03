@@ -16,9 +16,6 @@
 
   <properties>
     <changelist>-SNAPSHOT</changelist>
-    <docker-registry>https://docker.nexus.archi-lab.io</docker-registry>
-    <docker-registry-username>username</docker-registry-username>
-    <docker-registry-username>password</docker-registry-username>
     <docker.image.prefix>docker.nexus.archi-lab.io/ihbr</docker.image.prefix>
     <!-- Downgraded version due to: https://github.com/spotify/dockerfile-maven/issues/329 -->
     <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
@@ -64,6 +61,12 @@
       <groupId>org.flywaydb</groupId>
       <artifactId>flyway-core</artifactId>
     </dependency>
+    <!-- https://mvnrepository.com/artifact/org.imgscalr/imgscalr-lib -->
+    <dependency>
+      <groupId>org.imgscalr</groupId>
+      <artifactId>imgscalr-lib</artifactId>
+      <version>4.2</version>
+    </dependency>
     <dependency>
       <groupId>org.keycloak</groupId>
       <artifactId>keycloak-spring-boot-starter</artifactId>
@@ -81,18 +84,18 @@
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-hateoas</artifactId>
-      <version>1.5.2</version>
+      <version>1.5.3</version>
     </dependency>
 
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-ui</artifactId>
-      <version>1.5.2</version>
+      <version>1.5.3</version>
     </dependency>
     <dependency>
       <groupId>org.springdoc</groupId>
       <artifactId>springdoc-openapi-webmvc-core</artifactId>
-      <version>1.5.2</version>
+      <version>1.5.3</version>
     </dependency>
     <dependency>
       <groupId>org.springframework.boot</groupId>
@@ -123,6 +126,11 @@
     <dependency>
       <groupId>org.springframework.cloud</groupId>
       <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+    </dependency>
+    <!-- https://mvnrepository.com/artifact/org.springframework.cloud/spring-cloud-starter-feign -->
+    <dependency>
+      <groupId>org.springframework.cloud</groupId>
+      <artifactId>spring-cloud-starter-openfeign</artifactId>
     </dependency>
     <!-- https://mvnrepository.com/artifact/org.yaml/snakeyaml -->
     <dependency>
@@ -249,9 +257,9 @@
           </image>
           <docker>
             <publishRegistry>
-              <username>${docker-registry-username}</username>
-              <password>${docker-registry-password}</password>
-              <url>${docker-registry}</url>
+              <username>${env.DOCKER_REGISTRY_USER}</username>
+              <password>${env.DOCKER_REGISTRY_PASSWORD}</password>
+              <url>${env.DOCKER_REGISTRY}</url>
             </publishRegistry>
           </docker>
         </configuration>

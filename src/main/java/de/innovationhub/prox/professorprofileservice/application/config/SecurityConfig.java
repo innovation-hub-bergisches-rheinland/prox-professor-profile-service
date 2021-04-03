@@ -7,6 +7,7 @@ import org.keycloak.adapters.springsecurity.authentication.KeycloakAuthenticatio
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper;
@@ -38,6 +39,26 @@ public class SecurityConfig extends KeycloakWebSecurityConfigurerAdapter {
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     super.configure(http);
-    http.csrf().disable().authorizeRequests().anyRequest().permitAll();
+    http.csrf()
+        .disable()
+        .authorizeRequests()
+        .antMatchers(HttpMethod.GET, "/**")
+        .permitAll()
+        .antMatchers(HttpMethod.POST, "/professors/**")
+        .access("hasRole('professor')")
+        .antMatchers(HttpMethod.PUT, "/professors/{id}/**")
+        .access(
+            "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(request, #id)")
+        .antMatchers(HttpMethod.PUT, "/professors/{id}/faculty/**")
+        .access(
+            "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(request, #id)")
+        .antMatchers(HttpMethod.POST, "/professors/{id}/image/**")
+        .access(
+            "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(request, #id)")
+        .antMatchers(HttpMethod.DELETE, "/professors/{id}/image/**")
+        .access(
+            "hasRole('professor') and @authenticationUtils.compareUserIdAndRequestId(request, #id)")
+        .anyRequest()
+        .denyAll();
   }
 }

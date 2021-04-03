@@ -5,8 +5,11 @@ services:
     image: ${REPOSITORY}/${IMAGE}:${TAG}
     depends_on:
       - professor-profile-db
+      - volumeinit
+    environment:
+      - PROFILE_IMAGE_DIRECTORY=/home/cnb/data/img
     volumes:
-      - professor-profile-img-data:/data/img
+      - professor-profile-service-data:/home/cnb:rw
     networks:
       - prox
       - professor-profile-db
@@ -25,7 +28,7 @@ services:
 
 volumes:
   professor-profile-db-data:
-  professor-profile-img-data:
+  professor-profile-service-data:
 
 networks:
   prox:

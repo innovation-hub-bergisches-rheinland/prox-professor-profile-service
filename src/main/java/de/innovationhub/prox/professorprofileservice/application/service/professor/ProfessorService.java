@@ -10,6 +10,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import org.modelmapper.ModelMapper;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -42,8 +45,12 @@ public class ProfessorService {
     return mapper1;
   }
 
-  public Iterable<Professor> getAllProfessors() {
-    return this.professorRepository.findAll();
+  public Iterable<Professor> getAllProfessors(Sort sort) {
+    return this.professorRepository.findAll(sort);
+  }
+
+  public Page<Professor> getAllProfessors(Pageable pageable) {
+    return this.professorRepository.findAll(pageable);
   }
 
   public Optional<Professor> getProfessor(UUID uuid) {
@@ -58,6 +65,8 @@ public class ProfessorService {
     var optProfessor = this.professorRepository.findById(uuid);
     if (optProfessor.isPresent()) {
       var prof = optProfessor.get();
+      prof.getPublications().clear();
+      prof.getResearchSubjects().clear();
       this.modelMapper.map(professor, prof);
       return Optional.of(this.professorRepository.save(prof));
     }
@@ -112,5 +121,28 @@ public class ProfessorService {
 
   public boolean existsById(UUID id) {
     return this.professorRepository.existsById(id);
+  }
+
+  public boolean hasImage(UUID id) {
+    var optProf = this.getProfessor(id);
+    return optProf
+        .map(
+            p ->
+                p.getProfessorImage() != null
+                    && p.getProfessorImage().getFilename() != null
+                    && !p.getProfessorImage().getFilename().isBlank())
+        .orElseGet(() -> false);
+  }
+
+  public Page<Professor> findProfessorsByFacultyId(UUID id, Pageable pageable) {
+    return this.professorRepository.findAllByFaculty_Id(id, pageable);
+  }
+
+  public Page<Professor> findProfessorByFacultyIdAndName(UUID id, String name, Pageable pageable) {
+    return this.professorRepository.findAllByFaculty_IdAndNameIgnoreCase(id, name, pageable);
+  }
+
+  public Page<Professor> findProfessoryByName(String name, Pageable pageable) {
+    return this.professorRepository.findAllByNameContainingIgnoreCase(name, pageable);
   }
 }
