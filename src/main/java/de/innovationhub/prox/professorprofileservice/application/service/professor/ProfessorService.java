@@ -153,11 +153,19 @@ public class ProfessorService {
 
   public Map<String, UUID> findFirstIdByFuzzyNames(String[] names) {
     Map<String, UUID> map = new HashMap<>();
-    for(String name : names) {
+    for (String name : names) {
       var prof = StreamSupport.stream(professorRepository.findAll().spliterator(), false)
-          .sorted(Comparator.comparingInt(o -> FuzzySearch.ratio(o.getName().replaceAll("((Prof|Dr)(\\s|.))", "").trim().toLowerCase(), name.toLowerCase())))
+          .sorted((o1, o2) -> {
+            return FuzzySearch
+                .ratio(o1.getName().replaceAll("((Prof|Dr|Dr.*-\\w)(\\s|.))", "").trim().toLowerCase(),
+                    name.toLowerCase()) - FuzzySearch
+                .ratio(o2.getName().replaceAll("((Prof|Dr|Dr.*-\\w)(\\s|.))", "").trim().toLowerCase(),
+                    name.toLowerCase());
+          })
           .findFirst();
-      if(prof.isPresent() && FuzzySearch.ratio(prof.get().getName().replaceAll("((Prof|Dr)(\\s|.))", "").trim().toLowerCase(), name.toLowerCase()) >= 75) {
+      if (prof.isPresent() && FuzzySearch.ratio(
+          prof.get().getName().replaceAll("((Prof|Dr|Dr.*-\\w)(\\s|.))", "").trim().toLowerCase(),
+          name.toLowerCase()) >= 75) {
         map.put(name, prof.get().getId());
       } else {
         map.put(name, null);
