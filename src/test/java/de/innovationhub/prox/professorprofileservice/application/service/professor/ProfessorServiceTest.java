@@ -244,25 +244,4 @@ class ProfessorServiceTest {
 
     assertTrue(profList.isEmpty());
   }
-
-  @Test
-  void test() {
-
-    var profs = new String[] {"Prof. Dr. Stefan Bente", "Prof. Dr.-Ing. Florain Zwanzig"};
-
-    var prof = Arrays.stream(profs)
-        .sorted(new Comparator<String>() {
-          @Override
-          public int compare(String o1, String o2) {
-            return FuzzySearch
-                .ratio(o1.replaceAll("((Prof|Dr|Dr.*-\\w)(\\s|.))", "").trim().toLowerCase(),
-                    "stefan Bente".toLowerCase()) - FuzzySearch
-                .ratio(o2.replaceAll("((Prof|Dr|Dr.*-\\w)(\\s|.))", "").trim().toLowerCase(),
-                    "stefan Bente".toLowerCase());
-          }
-        }.reversed())
-        .findFirst();
-
-        System.out.println(prof);
-  }
 }
