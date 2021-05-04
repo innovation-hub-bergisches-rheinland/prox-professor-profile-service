@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.text.MessageFormat;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
@@ -172,9 +173,7 @@ public class ProfessorControllerImpl implements ProfessorController {
   }
 
   @Override
-  public ResponseEntity<EntityModel<Professor>> findProfessorWithNameLike(String name) {
-    var professor =
-        this.professorService.findFirstByNameLike(name).orElseThrow(ProfessorNotFoundException::new);
-    return ResponseEntity.ok(this.professorRepresentationModelAssembler.toModel(professor));
+  public ResponseEntity<Map<String, UUID>> findProfessorWithNameLike(String[] names) {
+    return ResponseEntity.ok(this.professorService.findFirstIdByFuzzyNames(names));
   }
 }
