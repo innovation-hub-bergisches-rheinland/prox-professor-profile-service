@@ -6,11 +6,14 @@ import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorI
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImageRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -148,12 +151,14 @@ public class ProfessorService {
     return this.professorRepository.findAllByNameContainingIgnoreCase(name, pageable);
   }
 
-  public Map<String, UUID> findFirstIdByNameContainsIgnoreCase(String[] names) {
+  public Map<String, UUID> findFirstIdByFuzzyNames(String[] names) {
     Map<String, UUID> map = new HashMap<>();
     for(String name : names) {
-      var id = this.professorRepository.findFirstIdByNameContainsIgnoreCase(name);
-      if(id.isPresent()) {
-        map.put(name, id.get());
+      var prof = StreamSupport.stream(professorRepository.findAll().spliterator(), false)
+          .sorted(Comparator.comparingInt(o -> FuzzySearch.ratio(o.getName().replaceAll("((Prof|Dr)(\\s|.))", "").trim().toLowerCase(), name.toLowerCase())))
+          .findFirst();
+      if(prof.isPresent() && FuzzySearch.ratio(prof.get().getName().replaceAll("((Prof|Dr)(\\s|.))", "").trim().toLowerCase(), name.toLowerCase()) >= 75) {
+        map.put(name, prof.get().getId());
       } else {
         map.put(name, null);
       }
