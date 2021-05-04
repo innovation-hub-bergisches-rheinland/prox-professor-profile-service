@@ -147,6 +147,6 @@ public class ProfessorService {
   }
 
   public Optional<Professor> findFirstByNameLike(String name) {
-    return this.professorRepository.findFirstByNameLikeIgnoreCase(name);
+    return this.professorRepository.findFirstByNameContainsIgnoreCase(name);
   }
 }
