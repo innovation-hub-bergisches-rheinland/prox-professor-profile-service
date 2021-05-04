@@ -174,6 +174,6 @@ public class ProfessorControllerImpl implements ProfessorController {
 
   @Override
   public ResponseEntity<Map<String, UUID>> findProfessorWithNameLike(String[] names) {
-    return ResponseEntity.ok(this.professorService.findFirstIdByNameContainsIgnoreCase(names));
+    return ResponseEntity.ok(this.professorService.findFirstIdByFuzzyNames(names));
   }
 }

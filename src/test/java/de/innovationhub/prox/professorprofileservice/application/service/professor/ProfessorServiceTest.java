@@ -19,11 +19,13 @@ import de.innovationhub.prox.professorprofileservice.domain.professor.Publicatio
 import de.innovationhub.prox.professorprofileservice.domain.professor.ResearchSubject;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockitoAnnotations;
@@ -241,5 +243,26 @@ class ProfessorServiceTest {
     var profList = StreamSupport.stream(profs.spliterator(), false).collect(Collectors.toList());
 
     assertTrue(profList.isEmpty());
+  }
+
+  @Test
+  void test() {
+
+    var profs = new String[] {"Prof. Dr. Stefan Bente", "Prof. Dr.-Ing. Florain Zwanzig"};
+
+    var prof = Arrays.stream(profs)
+        .sorted(new Comparator<String>() {
+          @Override
+          public int compare(String o1, String o2) {
+            return FuzzySearch
+                .ratio(o1.replaceAll("((Prof|Dr|Dr.*-\\w)(\\s|.))", "").trim().toLowerCase(),
+                    "stefan Bente".toLowerCase()) - FuzzySearch
+                .ratio(o2.replaceAll("((Prof|Dr|Dr.*-\\w)(\\s|.))", "").trim().toLowerCase(),
+                    "stefan Bente".toLowerCase());
+          }
+        }.reversed())
+        .findFirst();
+
+        System.out.println(prof);
   }
 }
