@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.domain.professor;
 
+import java.util.Optional;
 import java.util.UUID;
 import javax.transaction.Transactional;
 import org.springframework.data.domain.Page;
@@ -18,4 +19,6 @@ public interface ProfessorRepository extends PagingAndSortingRepository<Professo
 
   @Transactional
   Page<Professor> findAllByNameContainingIgnoreCase(String search, Pageable pageable);
+
+  Optional<Professor> findFirstByNameLikeIgnoreCase(String name);
 }

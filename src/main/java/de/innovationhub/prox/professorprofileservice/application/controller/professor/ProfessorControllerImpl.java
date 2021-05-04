@@ -170,4 +170,11 @@ public class ProfessorControllerImpl implements ProfessorController {
     this.professorService.deleteProfessorImage(id);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
   }
+
+  @Override
+  public ResponseEntity<EntityModel<Professor>> findProfessorWithNameLike(String name) {
+    var professor =
+        this.professorService.findFirstByNameLike(name).orElseThrow(ProfessorNotFoundException::new);
+    return ResponseEntity.ok(this.professorRepresentationModelAssembler.toModel(professor));
+  }
 }
