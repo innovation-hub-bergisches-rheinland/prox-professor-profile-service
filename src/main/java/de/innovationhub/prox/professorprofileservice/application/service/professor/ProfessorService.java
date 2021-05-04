@@ -145,4 +145,8 @@ public class ProfessorService {
   public Page<Professor> findProfessoryByName(String name, Pageable pageable) {
     return this.professorRepository.findAllByNameContainingIgnoreCase(name, pageable);
   }
+
+  public Optional<Professor> findFirstByNameLike(String name) {
+    return this.professorRepository.findFirstByNameLikeIgnoreCase(name);
+  }
 }

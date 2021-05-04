@@ -251,4 +251,24 @@ public interface ProfessorController {
               schema = @Schema(implementation = ApiError.class)))
   @DeleteMapping(value = "/{id}/image")
   ResponseEntity<Void> deleteProfessorImage(@PathVariable UUID id, HttpServletRequest request);
+
+  @Operation(summary = "find professor with name like")
+  @ApiResponse(responseCode = "200", description = "OK")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid Parameter",
+      content =
+      @Content(
+          mediaType = MediaType.APPLICATION_JSON_VALUE,
+          schema = @Schema(implementation = ApiError.class)))
+  @ApiResponse(
+      responseCode = "404",
+      description = "No professor with name found",
+      content =
+      @Content(
+          mediaType = MediaType.APPLICATION_JSON_VALUE,
+          schema = @Schema(implementation = ApiError.class)))
+  @GetMapping(value = "/search/findProfessorByName", produces = MediaTypes.HAL_JSON_VALUE)
+  ResponseEntity<EntityModel<Professor>> findProfessorWithNameLike(@RequestParam(required = true, name = "name") String name);
+
 }
