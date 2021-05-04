@@ -21,7 +21,6 @@ public interface ProfessorRepository extends PagingAndSortingRepository<Professo
   @Transactional
   Page<Professor> findAllByNameContainingIgnoreCase(String search, Pageable pageable);
 
-  @Transactional
-  @Query("select p from Professor p where upper(p.name) like upper(concat('%', ?1, '%'))")
-  Optional<Professor> findFirstByNameContainsIgnoreCase(String name);
+  @Query("select p.id from Professor p where upper(p.name) like upper(concat('%', ?1, '%'))")
+  Optional<UUID> findFirstIdByNameContainsIgnoreCase(String name);
 }

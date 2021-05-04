@@ -6,6 +6,8 @@ import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorI
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImageRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
 import java.io.IOException;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -146,7 +148,16 @@ public class ProfessorService {
     return this.professorRepository.findAllByNameContainingIgnoreCase(name, pageable);
   }
 
-  public Optional<Professor> findFirstByNameLike(String name) {
-    return this.professorRepository.findFirstByNameContainsIgnoreCase(name);
+  public Map<String, UUID> findFirstIdByNameContainsIgnoreCase(String[] names) {
+    Map<String, UUID> map = new HashMap<>();
+    for(String name : names) {
+      var id = this.professorRepository.findFirstIdByNameContainsIgnoreCase(name);
+      if(id.isPresent()) {
+        map.put(name, id.get());
+      } else {
+        map.put(name, null);
+      }
+    }
+    return map;
   }
 }

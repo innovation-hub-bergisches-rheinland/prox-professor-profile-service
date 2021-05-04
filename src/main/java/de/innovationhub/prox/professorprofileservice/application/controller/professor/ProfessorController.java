@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.hateoas.EntityModel;
@@ -261,14 +262,7 @@ public interface ProfessorController {
       @Content(
           mediaType = MediaType.APPLICATION_JSON_VALUE,
           schema = @Schema(implementation = ApiError.class)))
-  @ApiResponse(
-      responseCode = "404",
-      description = "No professor with name found",
-      content =
-      @Content(
-          mediaType = MediaType.APPLICATION_JSON_VALUE,
-          schema = @Schema(implementation = ApiError.class)))
-  @GetMapping(value = "/search/findProfessorByName", produces = MediaTypes.HAL_JSON_VALUE)
-  ResponseEntity<EntityModel<Professor>> findProfessorWithNameLike(@RequestParam(required = true, name = "name") String name);
+  @GetMapping(value = "/search/findProfessorIdsByNames", produces = MediaType.APPLICATION_JSON_VALUE)
+  ResponseEntity<Map<String, UUID>> findProfessorWithNameLike(@RequestParam(required = true, name = "names") String[] names);
 
 }
