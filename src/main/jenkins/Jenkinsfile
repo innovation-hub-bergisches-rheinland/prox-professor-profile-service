@@ -52,6 +52,7 @@ node {
                          "DOCKER_REGISTRY_PASSWORD=$NEXUS_PASSWORD"]) {
                     sh "./mvnw -B -s settings.xml \
                             -Dspring-boot.build-image.publish=true \
+                            -Dspring-boot.build-image.cleanCache=true \
                             -Dchangelist=${changelist} \
                             -Dskip.npm \
                             clean deploy"
