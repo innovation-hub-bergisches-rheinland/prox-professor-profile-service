@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import java.util.Map;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.hateoas.EntityModel;
@@ -251,4 +252,17 @@ public interface ProfessorController {
               schema = @Schema(implementation = ApiError.class)))
   @DeleteMapping(value = "/{id}/image")
   ResponseEntity<Void> deleteProfessorImage(@PathVariable UUID id, HttpServletRequest request);
+
+  @Operation(summary = "find professor with name like")
+  @ApiResponse(responseCode = "200", description = "OK")
+  @ApiResponse(
+      responseCode = "400",
+      description = "Invalid Parameter",
+      content =
+      @Content(
+          mediaType = MediaType.APPLICATION_JSON_VALUE,
+          schema = @Schema(implementation = ApiError.class)))
+  @GetMapping(value = "/search/findProfessorIdsByNames", produces = MediaType.APPLICATION_JSON_VALUE)
+  ResponseEntity<Map<String, UUID>> findProfessorWithNameLike(@RequestParam(required = true, name = "names") String[] names);
+
 }

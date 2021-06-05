@@ -13,6 +13,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.net.URLConnection;
 import java.text.MessageFormat;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 import javax.servlet.http.HttpServletRequest;
@@ -169,5 +170,10 @@ public class ProfessorControllerImpl implements ProfessorController {
   public ResponseEntity<Void> deleteProfessorImage(UUID id, HttpServletRequest request) {
     this.professorService.deleteProfessorImage(id);
     return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+  }
+
+  @Override
+  public ResponseEntity<Map<String, UUID>> findProfessorWithNameLike(String[] names) {
+    return ResponseEntity.ok(this.professorService.findFirstIdByFuzzyNames(names));
   }
 }

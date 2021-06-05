@@ -6,9 +6,14 @@ import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorI
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImageRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
 import java.io.IOException;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.StreamSupport;
+import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -144,5 +149,18 @@ public class ProfessorService {
 
   public Page<Professor> findProfessoryByName(String name, Pageable pageable) {
     return this.professorRepository.findAllByNameContainingIgnoreCase(name, pageable);
+  }
+
+  public Map<String, UUID> findFirstIdByFuzzyNames(String[] names) {
+    Map<String, UUID> map = new HashMap<>();
+    for (String name : names) {
+      var prof = this.professorRepository.findFirstIdByNameContainsIgnoreCase(name);
+      if (prof.isPresent()) {
+        map.put(name, prof.get());
+      } else {
+        map.put(name, null);
+      }
+    }
+    return map;
   }
 }
