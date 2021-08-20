@@ -29,8 +29,8 @@ node {
         }
     }
 
-    stage('Set master Variables') {
-        if (env.BRANCH_NAME == 'master') {
+    stage('Set production Variables') {
+        if (env.BRANCH_NAME == 'main') {
             server = 'tcp://10.10.10.41:2376'
             certs = 'prox-prod-certs'
             tagPrefix = ''
