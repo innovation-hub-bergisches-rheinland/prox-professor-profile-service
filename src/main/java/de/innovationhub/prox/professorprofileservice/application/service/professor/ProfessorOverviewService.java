@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.service.professor;
 
+
 import de.innovationhub.prox.professorprofileservice.domain.dto.ProfessorOverviewDto;
 import de.innovationhub.prox.professorprofileservice.domain.dto.ProfessorOverviewRepository;
 import org.springframework.stereotype.Service;

@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.controller.professor;
 
+
 import de.innovationhub.prox.professorprofileservice.domain.dto.ProfessorOverviewDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;

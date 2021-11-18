@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.exception;
 
+
 import de.innovationhub.prox.professorprofileservice.application.exception.core.CustomEntityNotFoundException;
 import de.innovationhub.prox.professorprofileservice.application.exception.integrety.PathIdNotMatchingEntityIdException;
 import de.innovationhub.prox.professorprofileservice.application.exception.security.RequestUserIdNotFoundException;

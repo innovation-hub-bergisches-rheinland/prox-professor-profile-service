@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.domain.professor;
 
+
 import java.util.Optional;
 import java.util.UUID;
 import javax.transaction.Transactional;
@@ -20,7 +21,6 @@ public interface ProfessorRepository extends PagingAndSortingRepository<Professo
 
   @Transactional
   Page<Professor> findAllByNameContainingIgnoreCase(String search, Pageable pageable);
-
 
   @Query("select p.id from Professor p where upper(p.name) like upper(concat('%', ?1, '%'))")
   Optional<UUID> findFirstIdByNameContainsIgnoreCase(String name);

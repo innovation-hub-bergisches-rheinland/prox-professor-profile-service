@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.controller.faculty;
 
+
 import de.innovationhub.prox.professorprofileservice.application.exception.ApiError;
 import de.innovationhub.prox.professorprofileservice.application.exception.faculty.FacultyNotFoundException;
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.FacultyRepresentationModelAssembler;

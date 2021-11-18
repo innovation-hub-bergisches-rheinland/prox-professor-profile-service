@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.domain.faculty;
 
+
 import de.innovationhub.prox.professorprofileservice.domain.core.AbstractEntity;
 import javax.persistence.Entity;
 import javax.persistence.Table;

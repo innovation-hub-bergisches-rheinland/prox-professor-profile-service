@@ -5,7 +5,7 @@
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
     <version>2.5.7</version>
-    <relativePath />
+    <relativePath></relativePath>
   </parent>
 
   <groupId>de.innovation-hub.prox</groupId>
@@ -359,15 +359,6 @@
           <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
-            <!-- Build and deploy during the deploy phase -->
-            <executions>
-              <execution>
-                <phase>deploy</phase>
-                <goals>
-                  <goal>build-image</goal>
-                </goals>
-              </execution>
-            </executions>
             <configuration>
               <image>
                 <publish>true</publish>
@@ -383,6 +374,15 @@
                 </publishRegistry>
               </docker>
             </configuration>
+            <!-- Build and deploy during the deploy phase -->
+            <executions>
+              <execution>
+                <goals>
+                  <goal>build-image</goal>
+                </goals>
+                <phase>deploy</phase>
+              </execution>
+            </executions>
           </plugin>
         </plugins>
       </build>

@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.service.faculty;
 
+
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.FacultyRepository;
 import java.util.Optional;

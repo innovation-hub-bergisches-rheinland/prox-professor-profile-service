@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.repository;
 
+
 import de.innovationhub.prox.professorprofileservice.application.net.client.ProjectServiceClient;
 import de.innovationhub.prox.professorprofileservice.application.net.schema.ProjectStats;
 import de.innovationhub.prox.professorprofileservice.application.service.professor.ProfessorService;

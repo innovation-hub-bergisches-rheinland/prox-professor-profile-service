@@ -3,7 +3,7 @@ module.exports = {
   "*": [
     (resolvedPaths) => {
       return `./mvnw spotless:apply -X -DspotlessFiles=${resolvedPaths.join(
-          ","
+        ","
       )}`;
     },
   ],

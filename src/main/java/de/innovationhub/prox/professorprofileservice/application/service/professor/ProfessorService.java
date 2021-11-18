@@ -1,19 +1,17 @@
 package de.innovationhub.prox.professorprofileservice.application.service.professor;
 
+
 import de.innovationhub.prox.professorprofileservice.application.exception.professor.ProfessorNotFoundException;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImage;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImageRepository;
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorRepository;
 import java.io.IOException;
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.stream.StreamSupport;
-import me.xdrop.fuzzywuzzy.FuzzySearch;
 import org.modelmapper.ModelMapper;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,12 +38,20 @@ public class ProfessorService {
     // Configure TypeMapping for mapping Professor->Professor
     var typeMap = mapper1.typeMap(Professor.class, Professor.class);
     // Skip ProfessorImage when image is already set
-    typeMap.addMappings(mapper -> mapper.when(Objects::nonNull).skip(Professor::getProfessorImage, Professor::setProfessorImage));
+    typeMap.addMappings(
+        mapper ->
+            mapper
+                .when(Objects::nonNull)
+                .skip(Professor::getProfessorImage, Professor::setProfessorImage));
 
     // Configure TypeMapping for mapping ProfessorImage->ProfessorImage
     var typeMap2 = mapper1.typeMap(ProfessorImage.class, ProfessorImage.class);
     // Skip filename when already set
-    typeMap2.addMappings(mapper -> mapper.when(Objects::nonNull).skip(ProfessorImage::getFilename, ProfessorImage::setFilename));
+    typeMap2.addMappings(
+        mapper ->
+            mapper
+                .when(Objects::nonNull)
+                .skip(ProfessorImage::getFilename, ProfessorImage::setFilename));
 
     return mapper1;
   }

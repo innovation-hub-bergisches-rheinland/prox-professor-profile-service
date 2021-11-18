@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.domain.core;
 
+
 import java.util.UUID;
 import javax.persistence.Id;
 import javax.persistence.MappedSuperclass;

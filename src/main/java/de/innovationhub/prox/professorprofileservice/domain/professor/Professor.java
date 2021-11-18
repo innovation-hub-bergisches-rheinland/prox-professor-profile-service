@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.domain.professor;
 
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import de.innovationhub.prox.professorprofileservice.domain.core.AbstractEntity;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
