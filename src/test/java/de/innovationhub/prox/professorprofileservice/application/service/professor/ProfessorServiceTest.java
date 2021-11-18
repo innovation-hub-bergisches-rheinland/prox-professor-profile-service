@@ -52,7 +52,6 @@ class ProfessorServiceTest {
 
   @BeforeEach
   void setup() {
-    MockitoAnnotations.initMocks(this.getClass());
     this.professor =
         new Professor(
             UUID.randomUUID(),

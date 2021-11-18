@@ -1,0 +1,15 @@
+name: Maven CI
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  maven-ci:
+    uses: innovation-hub-bergisches-rheinland/.github/.github/workflows/maven-ci-docker.yml@main
+    with:
+      docker-registry: https://quay.io/innovation-hub-bergisches-rheinland
+    secrets:
+      docker-registry-user: ${{ secrets.QUAY_IO_USERNAME }}
+      docker-registry-password: ${{ secrets.QUAY_IO_PASSWORD }}

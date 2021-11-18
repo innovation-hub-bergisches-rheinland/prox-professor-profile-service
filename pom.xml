@@ -4,7 +4,7 @@
   <parent>
     <groupId>org.springframework.boot</groupId>
     <artifactId>spring-boot-starter-parent</artifactId>
-    <version>2.4.2</version>
+    <version>2.5.7</version>
     <relativePath />
   </parent>
 
@@ -16,18 +16,17 @@
 
   <properties>
     <changelist>-SNAPSHOT</changelist>
-    <docker.image.prefix>docker.nexus.archi-lab.io/ihbr</docker.image.prefix>
+    <docker.image.prefix>quay.io/innovation-hub-bergisches-rheinland</docker.image.prefix>
     <!-- Downgraded version due to: https://github.com/spotify/dockerfile-maven/issues/329 -->
     <dockerfile-maven-plugin.version>1.4.10</dockerfile-maven-plugin.version>
-    <frontend-maven-plugin.nodeVersion>v15.0.1</frontend-maven-plugin.nodeVersion>
-    <frontend-maven-plugin.version>1.10.3</frontend-maven-plugin.version>
+    <frontend-maven-plugin.nodeVersion>v16.13.0</frontend-maven-plugin.nodeVersion>
+    <frontend-maven-plugin.version>1.12.0</frontend-maven-plugin.version>
     <java.version>11</java.version>
     <keycloak.version>11.0.3</keycloak.version>
     <maven-toolchains-plugin.version>3.0.0</maven-toolchains-plugin.version>
     <revision>0.1.0</revision>
-    <sortpom-maven-plugin.version>2.12.0</sortpom-maven-plugin.version>
-    <spotless-maven-plugin.version>2.5.0</spotless-maven-plugin.version>
-    <spring-cloud.version>2020.0.1</spring-cloud.version>
+    <spotless-maven-plugin.version>2.17.4</spotless-maven-plugin.version>
+    <spring-cloud.version>2020.0.4</spring-cloud.version>
     <springfox.version>3.0.0</springfox.version>
   </properties>
 
@@ -79,7 +78,7 @@
     <dependency>
       <groupId>org.modelmapper</groupId>
       <artifactId>modelmapper</artifactId>
-      <version>2.3.0</version>
+      <version>2.4.2</version>
     </dependency>
     <dependency>
       <groupId>org.projectlombok</groupId>
@@ -195,62 +194,39 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>com.github.ekryd.sortpom</groupId>
-        <artifactId>sortpom-maven-plugin</artifactId>
-        <version>${sortpom-maven-plugin.version}</version>
-        <configuration>
-          <predefinedSortOrder>recommended_2008_06</predefinedSortOrder>
-          <encoding>${project.build.sourceEncoding}</encoding>
-          <sortProperties>true</sortProperties>
-          <keepBlankLines>true</keepBlankLines>
-          <sortDependencies>scope,groupId,artifactId</sortDependencies>
-          <createBackupFile>false</createBackupFile>
-          <ignoreLineSeparators>false</ignoreLineSeparators>
-          <expandEmptyElements>false</expandEmptyElements>
-        </configuration>
-        <executions>
-          <execution>
-            <id>sort-pom</id>
-            <goals>
-              <goal>sort</goal>
-            </goals>
-            <phase>process-sources</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
-        <groupId>com.github.eirslett</groupId>
-        <artifactId>frontend-maven-plugin</artifactId>
-        <version>${frontend-maven-plugin.version}</version>
-        <configuration>
-          <nodeVersion>${frontend-maven-plugin.nodeVersion}</nodeVersion>
-        </configuration>
-        <executions>
-          <execution>
-            <id>install-node-and-npm</id>
-            <goals>
-              <goal>install-node-and-npm</goal>
-            </goals>
-            <phase>generate-resources</phase>
-          </execution>
-          <execution>
-            <id>npm-install</id>
-            <goals>
-              <goal>npm</goal>
-            </goals>
-            <phase>generate-resources</phase>
-          </execution>
-        </executions>
-      </plugin>
-      <plugin>
         <groupId>com.diffplug.spotless</groupId>
         <artifactId>spotless-maven-plugin</artifactId>
         <version>${spotless-maven-plugin.version}</version>
         <configuration>
+          <ratchetFrom>origin/main</ratchetFrom>
           <java>
-            <googleJavaFormat />
-            <removeUnusedImports />
+            <googleJavaFormat>
+              <version>1.12.0</version>
+            </googleJavaFormat>
+            <importOrder></importOrder>
+            <removeUnusedImports></removeUnusedImports>
           </java>
+          <pom>
+            <sortPom></sortPom>
+          </pom>
+          <formats>
+            <format>
+              <includes>
+                <include>*.js</include>
+                <include>*.ts</include>
+                <include>*.css</include>
+                <include>*.scss</include>
+                <include>*.json</include>
+                <include>*.md</include>
+                <include>*.html</include>
+                <include>*.yml</include>
+                <include>*.yaml</include>
+              </includes>
+              <prettier>
+                <prettierVersion>2.4.1</prettierVersion>
+              </prettier>
+            </format>
+          </formats>
         </configuration>
       </plugin>
       <plugin>
@@ -260,13 +236,6 @@
           <image>
             <name>${docker.image.prefix}/${project.artifactId}:${project.version}</name>
           </image>
-          <docker>
-            <publishRegistry>
-              <username>${env.DOCKER_REGISTRY_USER}</username>
-              <password>${env.DOCKER_REGISTRY_PASSWORD}</password>
-              <url>${env.DOCKER_REGISTRY}</url>
-            </publishRegistry>
-          </docker>
         </configuration>
         <executions>
           <execution>
@@ -301,9 +270,6 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-install-plugin</artifactId>
-        <configuration>
-          <skip>true</skip>
-        </configuration>
       </plugin>
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -344,6 +310,79 @@
                 </goals>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>node</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <version>${frontend-maven-plugin.version}</version>
+            <configuration>
+              <nodeVersion>${frontend-maven-plugin.nodeVersion}</nodeVersion>
+            </configuration>
+            <executions>
+              <execution>
+                <id>install-node-and-npm</id>
+                <goals>
+                  <goal>install-node-and-npm</goal>
+                </goals>
+                <phase>generate-resources</phase>
+              </execution>
+              <execution>
+                <id>npm-install</id>
+                <goals>
+                  <goal>npm</goal>
+                </goals>
+                <phase>generate-resources</phase>
+                <configuration>
+                  <!-- Run npm ci instead of install -->
+                  <arguments>ci</arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>ci</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-maven-plugin</artifactId>
+            <!-- Build and deploy during the deploy phase -->
+            <executions>
+              <execution>
+                <phase>deploy</phase>
+                <goals>
+                  <goal>build-image</goal>
+                </goals>
+              </execution>
+            </executions>
+            <configuration>
+              <image>
+                <publish>true</publish>
+              </image>
+              <docker>
+                <publishRegistry>
+                  <!--suppress UnresolvedMavenProperty -->
+                  <username>${env.DOCKER_REGISTRY_USER}</username>
+                  <!--suppress UnresolvedMavenProperty -->
+                  <password>${env.DOCKER_REGISTRY_PASSWORD}</password>
+                  <!--suppress UnresolvedMavenProperty -->
+                  <url>${env.DOCKER_REGISTRY}</url>
+                </publishRegistry>
+              </docker>
+            </configuration>
           </plugin>
         </plugins>
       </build>

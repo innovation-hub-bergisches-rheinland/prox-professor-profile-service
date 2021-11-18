@@ -40,12 +40,12 @@ public class ProfessorService {
     // Configure TypeMapping for mapping Professor->Professor
     var typeMap = mapper1.typeMap(Professor.class, Professor.class);
     // Skip ProfessorImage when image is already set
-    typeMap.addMappings(mapper -> mapper.when(Objects::nonNull).skip(Professor::setProfessorImage));
+    typeMap.addMappings(mapper -> mapper.when(Objects::nonNull).skip(Professor::getProfessorImage, Professor::setProfessorImage));
 
     // Configure TypeMapping for mapping ProfessorImage->ProfessorImage
     var typeMap2 = mapper1.typeMap(ProfessorImage.class, ProfessorImage.class);
     // Skip filename when already set
-    typeMap2.addMappings(mapper -> mapper.when(Objects::nonNull).skip(ProfessorImage::setFilename));
+    typeMap2.addMappings(mapper -> mapper.when(Objects::nonNull).skip(ProfessorImage::getFilename, ProfessorImage::setFilename));
 
     return mapper1;
   }

@@ -34,7 +34,6 @@ class ProfessorImageRepositoryImplTest {
 
   @BeforeEach
   void setup() {
-    MockitoAnnotations.initMocks(this.getClass());
     ReflectionTestUtils.setField(
         professorImageRepository, "imageDirectory", fileSystem.getPath(""));
   }
