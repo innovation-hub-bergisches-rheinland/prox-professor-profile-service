@@ -9,7 +9,7 @@
 
   <groupId>de.innovation-hub.prox</groupId>
   <artifactId>prox-professor-profile-service</artifactId>
-  <version>0.2.1-SNAPSHOT</version>
+  <version>0.1.0-SNAPSHOT</version>
   <name>prox-professor-profile-service</name>
   <description>Prox Professor Profile service</description>
 
@@ -344,11 +344,11 @@
                 <googleJavaFormat>
                   <version>1.13.0</version>
                 </googleJavaFormat>
-                <importOrder />
-                <removeUnusedImports />
+                <importOrder></importOrder>
+                <removeUnusedImports></removeUnusedImports>
               </java>
               <pom>
-                <sortPom />
+                <sortPom></sortPom>
               </pom>
               <formats>
                 <format>
