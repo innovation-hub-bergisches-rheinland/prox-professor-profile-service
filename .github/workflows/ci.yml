@@ -1,15 +1,199 @@
-name: Maven CI
+name: CI
 
 on:
+  # Run on every pull request
+  pull_request:
+    branches: [ main ]
+    types: [ opened, synchronize, reopened ]
   push:
     branches: [ main ]
-  workflow_dispatch:
+
+env:
+  JAVA_VERSION: 17
+  MAVEN_SETTINGS: .github/settings.xml
+
+# Will build the binaries, run tests and checks on them and if everything succeeds AND it is a push
+# to the main branch will build and deploy a snapshot release of the binaries
 
 jobs:
-  maven-ci:
-    uses: innovation-hub-bergisches-rheinland/.github/.github/workflows/maven-ci-docker.yml@main
-    with:
-      docker-registry: https://quay.io/innovation-hub-bergisches-rheinland
-    secrets:
-      docker-registry-user: ${{ secrets.QUAY_IO_USERNAME }}
-      docker-registry-password: ${{ secrets.QUAY_IO_PASSWORD }}
+  # Simply compile the maven project and upload the build
+  build:
+    name: Maven Compile
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Update Maven Settings
+        run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
+
+      # No Snapshot Updates, Batch Mode, Show errors and skip tests
+      - name: Build Project
+        run: mvn clean compile -nsu -B -e
+
+      # Upload the built artifacts
+      - name: Store Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: maven-target.zip
+          retention-days: 2
+          path: |
+            ./target/**
+
+  # run tests on pre-built files
+  unit-test:
+    name: Unit Tests
+
+    needs: [ build ]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Update Maven Settings
+        run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
+
+      - name: Download build
+        uses: actions/download-artifact@v2
+        with:
+          path: ./target
+          name: maven-target.zip
+
+      - name: Run unit tests
+        run: |
+          if ! mvn test -nsu -B; then
+            find . -path '*/target/surefire-reports/*.xml' | zip -q reports-unit-tests.zip -@
+            exit 1
+          fi
+
+      - name: Unit test reports
+        uses: actions/upload-artifact@v2
+        if: failure()
+        with:
+          name: reports-unit-tests
+          retention-days: 14
+          path: reports-unit-tests.zip
+          if-no-files-found: ignore
+
+  # TODO: activate when access is granted
+  #  # analyze the pre-built files
+  #  analyze:
+  #    name: Analyze
+  #
+  #    needs: [ build ]
+  #
+  #    runs-on: ubuntu-latest
+  #
+  #    steps:
+  #      - name: Checkout Repository
+  #        uses: actions/checkout@v2
+  #
+  #      - name: Set up JDK ${{ env.JAVA_VERSION }}
+  #        uses: actions/setup-java@v2
+  #        with:
+  #          java-version: ${{ env.JAVA_VERSION }}
+  #          distribution: 'temurin'
+  #          cache: 'maven'
+  #
+  #      - name: Update Maven Settings
+  #        run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
+  #
+  #      - name: Cache SonarCloud packages
+  #        uses: actions/cache@v1
+  #        with:
+  #          path: ~/.sonar/cache
+  #          key: ${{ runner.os }}-sonar
+  #          restore-keys: ${{ runner.os }}-sonar
+  #
+  #      - name: Analyze with sonar
+  #        env:
+  #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+  #        run: mvn -nsu -DskipTests -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
+
+  # check code style
+  checkstyle:
+    name: Checkstyle
+
+    needs: [ build ]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Update Maven Settings
+        run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
+
+      - name: Spotless Check
+        run: mvn -nsu -DskipTests -B -Pcheckstyle spotless:check
+
+  # And now build and push the docker image
+  release:
+    name: Build and push Docker image (Snapshot release)
+
+    # But not on pull requests, only on pushes to main
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+
+    needs: [
+        build,
+        checkstyle,
+      # TODO: enable when access is granted
+      # analyze,
+        unit-test
+    ]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Update Maven Settings
+        run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
+
+      - name: Download build
+        uses: actions/download-artifact@v2
+        with:
+          path: ./target
+          name: maven-target.zip
+
+      - name: Build and Push Docker Image
+        env:
+          DOCKER_REGISTRY_USER: ${{ secrets.QUAY_IO_USERNAME }}
+          DOCKER_REGISTRY_PASSWORD: ${{ secrets.QUAY_IO_PASSWORD }}
+          DOCKER_REGISTRY: https://quay.io/innovation-hub-bergisches-rheinland
+        run: mvn -nsu -B -Pci spring-boot:build-image
