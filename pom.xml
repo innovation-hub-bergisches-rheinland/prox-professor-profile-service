@@ -9,14 +9,14 @@
 
   <groupId>de.innovation-hub.prox</groupId>
   <artifactId>prox-professor-profile-service</artifactId>
-  <version>0.1.0-SNAPSHOT</version>
+  <version>0.2.0</version>
   <name>prox-professor-profile-service</name>
   <description>Prox Professor Profile service</description>
 
   <scm>
     <!-- Probably it would be better to use SSH here, but that's out of scope for now -->
     <developerConnection>scm:git:https://github.com/innovation-hub-bergisches-rheinland/prox-professor-profile-service.git</developerConnection>
-    <tag>HEAD</tag>
+    <tag>v0.2.0</tag>
     <url>https://github.com/innovation-hub-bergisches-rheinland/prox-professor-profile-service</url>
   </scm>
 
@@ -344,11 +344,11 @@
                 <googleJavaFormat>
                   <version>1.13.0</version>
                 </googleJavaFormat>
-                <importOrder></importOrder>
-                <removeUnusedImports></removeUnusedImports>
+                <importOrder />
+                <removeUnusedImports />
               </java>
               <pom>
-                <sortPom></sortPom>
+                <sortPom />
               </pom>
               <formats>
                 <format>
