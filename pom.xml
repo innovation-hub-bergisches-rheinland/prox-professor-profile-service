@@ -193,42 +193,6 @@
   <build>
     <plugins>
       <plugin>
-        <groupId>com.diffplug.spotless</groupId>
-        <artifactId>spotless-maven-plugin</artifactId>
-        <version>${spotless-maven-plugin.version}</version>
-        <configuration>
-          <ratchetFrom>origin/main</ratchetFrom>
-          <java>
-            <googleJavaFormat>
-              <version>1.12.0</version>
-            </googleJavaFormat>
-            <importOrder></importOrder>
-            <removeUnusedImports></removeUnusedImports>
-          </java>
-          <pom>
-            <sortPom></sortPom>
-          </pom>
-          <formats>
-            <format>
-              <includes>
-                <include>*.js</include>
-                <include>*.ts</include>
-                <include>*.css</include>
-                <include>*.scss</include>
-                <include>*.json</include>
-                <include>*.md</include>
-                <include>*.html</include>
-                <include>*.yml</include>
-                <include>*.yaml</include>
-              </includes>
-              <prettier>
-                <prettierVersion>2.4.1</prettierVersion>
-              </prettier>
-            </format>
-          </formats>
-        </configuration>
-      </plugin>
-      <plugin>
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
         <configuration>
@@ -354,6 +318,52 @@
                 </configuration>
               </execution>
             </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+    <profile>
+      <id>checkstyle</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <version>${spotless-maven-plugin.version}</version>
+            <configuration>
+              <ratchetFrom>origin/main</ratchetFrom>
+              <java>
+                <googleJavaFormat>
+                  <version>1.13.0</version>
+                </googleJavaFormat>
+                <importOrder></importOrder>
+                <removeUnusedImports></removeUnusedImports>
+              </java>
+              <pom>
+                <sortPom></sortPom>
+              </pom>
+              <formats>
+                <format>
+                  <includes>
+                    <include>*.js</include>
+                    <include>*.ts</include>
+                    <include>*.css</include>
+                    <include>*.scss</include>
+                    <include>*.json</include>
+                    <include>*.md</include>
+                    <include>*.html</include>
+                    <include>*.yml</include>
+                    <include>*.yaml</include>
+                  </includes>
+                  <prettier>
+                    <prettierVersion>2.4.1</prettierVersion>
+                  </prettier>
+                </format>
+              </formats>
+            </configuration>
           </plugin>
         </plugins>
       </build>
