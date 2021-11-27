@@ -1,0 +1,47 @@
+name: Release new version
+
+on:
+  workflow_dispatch:
+
+env:
+  JAVA_VERSION: 17
+  MAVEN_SETTINGS: .github/settings.xml
+
+jobs:
+  prepare-release:
+    name: Prepare release
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - run: git config user.name 'github-actions[bot]'
+      - run: git config user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Update Maven Settings
+        run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
+
+      - name: Prepare Release
+        run: mvn -B -Prelease -DdryRun=false conventional-commits:version release:prepare
+
+      - name: Perform Release
+        env:
+          DOCKER_REGISTRY_USER: ${{ secrets.QUAY_IO_USERNAME }}
+          DOCKER_REGISTRY_PASSWORD: ${{ secrets.QUAY_IO_PASSWORD }}
+          DOCKER_REGISTRY: https://quay.io/innovation-hub-bergisches-rheinland
+        run: mvn -B -Prelease -DdryRun=false release:perform
+
+      - name: Rollback Release
+        if: ${{ failure() }}
+        run: mvn -B -Prelease release:rollback
