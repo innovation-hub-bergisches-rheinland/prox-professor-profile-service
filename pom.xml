@@ -13,6 +13,13 @@
   <name>prox-professor-profile-service</name>
   <description>Prox Professor Profile service</description>
 
+  <scm>
+    <!-- Probably it would be better to use SSH here, but that's out of scope for now -->
+    <developerConnection>scm:git:https://github.com/innovation-hub-bergisches-rheinland/prox-professor-profile-service.git</developerConnection>
+    <tag>HEAD</tag>
+    <url>https://github.com/innovation-hub-bergisches-rheinland/prox-professor-profile-service</url>
+  </scm>
+
   <properties>
     <changelist>-SNAPSHOT</changelist>
     <docker.image.prefix>quay.io/innovation-hub-bergisches-rheinland</docker.image.prefix>
