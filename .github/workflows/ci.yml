@@ -156,7 +156,7 @@ jobs:
 
   # And now build and push the docker image
   release:
-    name: Build and push Docker image (Snapshot release)
+    name: Release
 
     # But not on pull requests, only on pushes to main
     if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
@@ -174,6 +174,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - run: git config user.name 'github-actions[bot]'
+      - run: git config user.email 'github-actions[bot]@users.noreply.github.com'
 
       - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v2
@@ -185,15 +190,16 @@ jobs:
       - name: Update Maven Settings
         run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
 
-      - name: Download build
-        uses: actions/download-artifact@v2
-        with:
-          path: ./target
-          name: maven-target.zip
+      - name: Prepare Release
+        run: mvn -B -Prelease -DdryRun=false conventional-commits:version release:prepare
 
-      - name: Build and Push Docker Image
+      - name: Perform Release
         env:
           DOCKER_REGISTRY_USER: ${{ secrets.QUAY_IO_USERNAME }}
           DOCKER_REGISTRY_PASSWORD: ${{ secrets.QUAY_IO_PASSWORD }}
           DOCKER_REGISTRY: https://quay.io/innovation-hub-bergisches-rheinland
-        run: mvn -nsu -B -Pci spring-boot:build-image
+        run: mvn -B -Prelease -DdryRun=false release:perform
+
+      - name: Rollback Release
+        if: ${{ failure() }}
+        run: mvn -B -Prelease release:rollback
