@@ -190,14 +190,17 @@ jobs:
       - name: Update Maven Settings
         run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
 
+      - name: Login to Quay
+        uses: docker/login-action@v1
+        with:
+          registry: quay.io
+          username: ${{ secrets.QUAY_IO_USERNAME }}
+          password: ${{ secrets.QUAY_IO_PASSWORD }}
+
       - name: Prepare Release
         run: mvn -B -Prelease -DdryRun=false conventional-commits:version release:prepare
 
       - name: Perform Release
-        env:
-          DOCKER_REGISTRY_USER: ${{ secrets.QUAY_IO_USERNAME }}
-          DOCKER_REGISTRY_PASSWORD: ${{ secrets.QUAY_IO_PASSWORD }}
-          DOCKER_REGISTRY: https://quay.io/innovation-hub-bergisches-rheinland
         run: mvn -B -Prelease -DdryRun=false release:perform
 
       - name: Rollback Release
