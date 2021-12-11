@@ -95,41 +95,6 @@ jobs:
           path: reports-unit-tests.zip
           if-no-files-found: ignore
 
-  # TODO: activate when access is granted
-  #  # analyze the pre-built files
-  #  analyze:
-  #    name: Analyze
-  #
-  #    needs: [ build ]
-  #
-  #    runs-on: ubuntu-latest
-  #
-  #    steps:
-  #      - name: Checkout Repository
-  #        uses: actions/checkout@v2
-  #
-  #      - name: Set up JDK ${{ env.JAVA_VERSION }}
-  #        uses: actions/setup-java@v2
-  #        with:
-  #          java-version: ${{ env.JAVA_VERSION }}
-  #          distribution: 'temurin'
-  #          cache: 'maven'
-  #
-  #      - name: Update Maven Settings
-  #        run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
-  #
-  #      - name: Cache SonarCloud packages
-  #        uses: actions/cache@v1
-  #        with:
-  #          path: ~/.sonar/cache
-  #          key: ${{ runner.os }}-sonar
-  #          restore-keys: ${{ runner.os }}-sonar
-  #
-  #      - name: Analyze with sonar
-  #        env:
-  #          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-  #        run: mvn -nsu -DskipTests -B org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
   # check code style
   checkstyle:
@@ -197,6 +162,50 @@ jobs:
           retention-days: 2
           path: |
             ./target/**
+
+
+  # analyze the pre-built files
+  analyze:
+    name: Analyze
+
+    needs: [ package ]
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Download build
+        uses: actions/download-artifact@v2
+        with:
+          path: ./target
+          name: maven-target.zip
+
+      - name: Update Maven Settings
+        run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v1
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Build and analyze
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: mvn -B -Psonar verify org.sonarsource.scanner.maven:sonar-maven-plugin:sonar
 
   release:
     name: Release

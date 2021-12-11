@@ -3,6 +3,7 @@
   xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd">
   <activeProfiles>
     <activeProfile>ci</activeProfile>
+    <activeProfile>sonar</activeProfile>
     <activeProfile>checkstyle</activeProfile>
   </activeProfiles>
 
@@ -15,6 +16,15 @@
   </servers>
 
   <profiles>
+    <profile>
+      <id>sonar</id>
+
+      <properties>
+        <sonar.projectKey>innovation-hub-bergisches-rheinland_prox-professor-profile-service</sonar.projectKey>
+        <sonar.organization>innovation-hub-bergisches-rheinland</sonar.organization>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+      </properties>
+    </profile>
     <profile>
       <id>ci</id>
 
