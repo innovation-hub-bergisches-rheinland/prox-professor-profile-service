@@ -8,8 +8,8 @@
   </parent>
 
   <groupId>de.innovation-hub.prox</groupId>
-  <version>1.0.0</version>
   <artifactId>prox-professor-profile-service</artifactId>
+  <version>1.0.0</version>
   <name>prox-professor-profile-service</name>
   <description>Prox Professor Profile service</description>
 
@@ -219,10 +219,10 @@
         </configuration>
         <executions>
           <execution>
-            <phase>package</phase>
             <goals>
               <goal>dockerBuild</goal>
             </goals>
+            <phase>package</phase>
           </execution>
         </executions>
       </plugin>
@@ -359,11 +359,11 @@
                 <googleJavaFormat>
                   <version>1.13.0</version>
                 </googleJavaFormat>
-                <importOrder />
-                <removeUnusedImports />
+                <importOrder></importOrder>
+                <removeUnusedImports></removeUnusedImports>
               </java>
               <pom>
-                <sortPom />
+                <sortPom></sortPom>
               </pom>
               <formats>
                 <format>
@@ -405,10 +405,10 @@
             <version>3.1.4</version>
             <executions>
               <execution>
-                <phase>deploy</phase>
                 <goals>
                   <goal>build</goal>
                 </goals>
+                <phase>deploy</phase>
               </execution>
             </executions>
           </plugin>
