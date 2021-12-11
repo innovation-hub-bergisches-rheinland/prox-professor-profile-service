@@ -5,11 +5,15 @@ name: Commit Convention Check
 
 on:
   pull_request:
-    branches: [ main ]
-    types: [ opened, synchronize, reopened ]
+    branches: [main]
+    types: [opened, synchronize, reopened]
 
 jobs:
   commitlint:
+    continue-on-error: true
+
+    name: Validate all Commit Messages
+
     runs-on: ubuntu-latest
 
     steps:
@@ -27,4 +31,16 @@ jobs:
         run: npm ci
 
       - name: Validate all commits from PR
-        run: 'npx commitlint --from ${{ github.event.pull_request.base.sha }} --to ${{ github.event.pull_request.head.sha }} --verbose'
+        run:
+          'npx commitlint --from ${{ github.event.pull_request.base.sha }} --to
+          ${{ github.event.pull_request.head.sha }} --verbose'
+
+  pr-title:
+    name: Validate PR title
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: amannn/action-semantic-pull-request@v3.4.6
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
