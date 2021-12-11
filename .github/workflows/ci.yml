@@ -7,6 +7,8 @@ on:
     types: [ opened, synchronize, reopened ]
   push:
     branches: [ main ]
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
 
 env:
   JAVA_VERSION: 17
@@ -154,20 +156,10 @@ jobs:
       - name: Spotless Check
         run: mvn -nsu -DskipTests -B -Pcheckstyle spotless:check
 
-  # And now build and push the docker image
-  release:
-    name: Release
+  package:
+    name: Maven package
 
-    # But not on pull requests, only on pushes to main
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
-
-    needs: [
-        build,
-        checkstyle,
-      # TODO: enable when access is granted
-      # analyze,
-        unit-test
-    ]
+    needs: [ build ]
 
     runs-on: ubuntu-latest
 
@@ -177,8 +169,48 @@ jobs:
         with:
           fetch-depth: 0
 
-      - run: git config user.name 'github-actions[bot]'
-      - run: git config user.email 'github-actions[bot]@users.noreply.github.com'
+      - name: Set up JDK ${{ env.JAVA_VERSION }}
+        uses: actions/setup-java@v2
+        with:
+          java-version: ${{ env.JAVA_VERSION }}
+          distribution: 'temurin'
+          cache: 'maven'
+
+      - name: Download build
+        uses: actions/download-artifact@v2
+        with:
+          path: ./target
+          name: maven-target.zip
+
+      - name: Update Maven Settings
+        run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
+
+      - name: Maven Package
+        run: |
+          mvn -nsu -B -e -DskipTests package
+
+      # Upload the built artifacts
+      - name: Store Artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: maven-target.zip
+          retention-days: 2
+          path: |
+            ./target/**
+
+  release:
+    name: Release
+
+    needs: [ unit-test, package ]
+
+    # Only run if a tag is created
+    if: startsWith(github.ref, 'refs/tags/v')
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
 
       - name: Set up JDK ${{ env.JAVA_VERSION }}
         uses: actions/setup-java@v2
@@ -187,9 +219,6 @@ jobs:
           distribution: 'temurin'
           cache: 'maven'
 
-      - name: Update Maven Settings
-        run: mkdir -p ~/.m2 ; cp ${{ env.MAVEN_SETTINGS }} ~/.m2
-
       - name: Login to Quay
         uses: docker/login-action@v1
         with:
@@ -197,12 +226,25 @@ jobs:
           username: ${{ secrets.QUAY_IO_USERNAME }}
           password: ${{ secrets.QUAY_IO_PASSWORD }}
 
-      - name: Prepare Release
-        run: mvn -B -Prelease -DdryRun=false conventional-commits:version release:prepare
+      - name: Get Project version
+        id: project
+        run: |
+          echo ::set-output name=version::$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
 
-      - name: Perform Release
-        run: mvn -B -Prelease -DdryRun=false release:perform
+      - name: Download build
+        uses: actions/download-artifact@v2
+        with:
+          path: ./target
+          name: maven-target.zip
 
-      - name: Rollback Release
-        if: ${{ failure() }}
-        run: mvn -B -Prelease release:rollback
+      - name: Maven Deploy
+        run: |
+          mvn -nsu -B -e -Prelease -DskipTests -Djib.to.tags=latest,${{ steps.project.outputs.version }} deploy
+
+      - name: Publish Helm charts
+        uses: stefanprodan/helm-gh-pages@master
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          charts_dir: ./deploy/charts
+          app_version: ${{ steps.project.outputs.version }}
+          chart_version: ${{ steps.project.outputs.version }}
