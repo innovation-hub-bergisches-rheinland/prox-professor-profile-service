@@ -399,7 +399,11 @@
           <plugin>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-maven-plugin</artifactId>
-            <!-- Build and deploy during the deploy phase -->
+          </plugin>
+          <plugin>
+            <groupId>com.google.cloud.tools</groupId>
+            <artifactId>jib-maven-plugin</artifactId>
+            <version>3.1.4</version>
             <executions>
               <execution>
                 <phase>deploy</phase>
