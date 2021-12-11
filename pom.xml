@@ -8,8 +8,8 @@
   </parent>
 
   <groupId>de.innovation-hub.prox</groupId>
+  <version>1.0.0</version>
   <artifactId>prox-professor-profile-service</artifactId>
-  <version>0.2.3-SNAPSHOT</version>
   <name>prox-professor-profile-service</name>
   <description>Prox Professor Profile service</description>
 
