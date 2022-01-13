@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.controller.professor;
 
+
 import de.innovationhub.prox.professorprofileservice.application.exception.ApiError;
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import de.innovationhub.prox.professorprofileservice.domain.professor.Professor;
@@ -259,10 +260,12 @@ public interface ProfessorController {
       responseCode = "400",
       description = "Invalid Parameter",
       content =
-      @Content(
-          mediaType = MediaType.APPLICATION_JSON_VALUE,
-          schema = @Schema(implementation = ApiError.class)))
-  @GetMapping(value = "/search/findProfessorIdsByNames", produces = MediaType.APPLICATION_JSON_VALUE)
-  ResponseEntity<Map<String, UUID>> findProfessorWithNameLike(@RequestParam(required = true, name = "names") String[] names);
-
+          @Content(
+              mediaType = MediaType.APPLICATION_JSON_VALUE,
+              schema = @Schema(implementation = ApiError.class)))
+  @GetMapping(
+      value = "/search/findProfessorIdsByNames",
+      produces = MediaType.APPLICATION_JSON_VALUE)
+  ResponseEntity<Map<String, UUID>> findProfessorWithNameLike(
+      @RequestParam(required = true, name = "names") String[] names);
 }

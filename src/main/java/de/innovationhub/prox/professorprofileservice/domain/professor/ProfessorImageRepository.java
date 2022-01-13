@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.domain.professor;
 
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -15,9 +16,8 @@ public interface ProfessorImageRepository {
   /**
    * Load the image data from filename
    *
-   * @param filename filename in which the image is stored
+   * @param filepath filename in which the image is stored
    * @return image data
-   * @throws IOException on I/O error
    */
   Optional<byte[]> getProfessorImage(Path filepath);
 
@@ -37,7 +37,7 @@ public interface ProfessorImageRepository {
   /**
    * Deletes the image file at provided filename
    *
-   * @param filename filename to delete
+   * @param filepath filename to delete
    * @return true if deletion was successful, otherwise false
    * @throws IOException on I/O error
    */
@@ -50,7 +50,7 @@ public interface ProfessorImageRepository {
   /**
    * Checks if the image file exists
    *
-   * @param filename filename to check
+   * @param filepath filename to check
    * @return true if it exists otherwise false
    */
   boolean imageExists(Path filepath);

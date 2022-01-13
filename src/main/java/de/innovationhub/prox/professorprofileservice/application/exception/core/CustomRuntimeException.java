@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.exception.core;
 
+
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 

@@ -4,11 +4,11 @@ eureka:
     serviceUrl:
       defaultZone: http://service-discovery:8761/eureka/
 keycloak:
-  auth-server-url: https://login.archi-lab.io/auth
+  auth-server-url: https://login.aws.innovation-hub.de/auth
   bearer-only: true
   cors: false
   principal-attribute: preferred_username
-  realm: archilab
+  realm: innovation-hub-bergisches-rheinland
   resource: prox-professor-profile-service
 server:
   port: 9005

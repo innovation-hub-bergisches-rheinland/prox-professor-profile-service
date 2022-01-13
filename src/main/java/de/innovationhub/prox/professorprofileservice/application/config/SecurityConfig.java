@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.config;
 
+
 import de.innovationhub.prox.professorprofileservice.application.security.AuthenticationUtils;
 import de.innovationhub.prox.professorprofileservice.application.security.KeycloakAuthenticationUtils;
 import org.keycloak.adapters.springsecurity.KeycloakConfiguration;

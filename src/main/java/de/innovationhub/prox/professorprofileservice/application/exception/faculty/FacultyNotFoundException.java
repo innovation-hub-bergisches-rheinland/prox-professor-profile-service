@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.exception.faculty;
 
+
 import de.innovationhub.prox.professorprofileservice.application.exception.core.CustomEntityNotFoundException;
 
 /** Thrown when a faculty entity could not found */

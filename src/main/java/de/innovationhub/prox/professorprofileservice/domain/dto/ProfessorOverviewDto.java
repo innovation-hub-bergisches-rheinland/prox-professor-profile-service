@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.domain.dto;
 
+
 import java.util.UUID;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;

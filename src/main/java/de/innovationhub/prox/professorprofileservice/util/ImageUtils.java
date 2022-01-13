@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.util;
 
+
 import java.io.IOException;
 
 public interface ImageUtils {

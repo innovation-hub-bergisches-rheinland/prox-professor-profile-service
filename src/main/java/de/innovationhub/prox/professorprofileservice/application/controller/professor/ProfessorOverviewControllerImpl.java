@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.controller.professor;
 
+
 import de.innovationhub.prox.professorprofileservice.application.hatoeas.ProfessorOverviewRepresentationModelAssembler;
 import de.innovationhub.prox.professorprofileservice.application.service.professor.ProfessorOverviewService;
 import de.innovationhub.prox.professorprofileservice.domain.dto.ProfessorOverviewDto;

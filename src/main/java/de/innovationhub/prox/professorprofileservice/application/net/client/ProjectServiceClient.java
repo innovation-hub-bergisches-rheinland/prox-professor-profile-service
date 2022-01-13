@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.net.client;
 
+
 import de.innovationhub.prox.professorprofileservice.application.net.schema.ProjectStats;
 import java.util.UUID;
 import org.springframework.cloud.openfeign.FeignClient;

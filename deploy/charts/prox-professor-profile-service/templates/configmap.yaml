@@ -1,0 +1,44 @@
+{{- if not .Values.config.existingConfigMap }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "prox-professor-profile-service.fullname" . }}
+  labels:
+    {{- include "prox-professor-profile-service.labels" . | nindent 4 }}
+data:
+  application.yml: |-
+    eureka:
+      client:
+        serviceUrl:
+          defaultZone: http://prox-service-discovery:8761/eureka/
+      instance:
+        hostname: prox-professor-profile-service
+    keycloak:
+      auth-server-url: https://login.aws.innovation-hub.de/auth
+      bearer-only: true
+      cors: false
+      principal-attribute: preferred_username
+      realm: archilab
+      resource: prox-professor-profile-service
+    server:
+      port: 9005
+      forward-headers-strategy: native
+    spring:
+      application:
+        name: professor-profile-service
+      datasource:
+        url: jdbc:postgresql://prox-professor-profile-service-db:5432/postgres
+        username: postgres
+      jpa:
+        database-platform: org.hibernate.dialect.PostgreSQLDialect
+        hibernate:
+          ddl-auto: validate
+        properties:
+          hibernate:
+            jdbc:
+              lob:
+                non_contextual_creation: true
+    springdoc:
+      # By default Springdoc will remove schemas which do not have references.
+      remove-broken-reference-definitions: false
+{{- end }}

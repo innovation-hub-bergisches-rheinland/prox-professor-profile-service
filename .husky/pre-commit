@@ -1,0 +1,66 @@
+#!/bin/bash
+set -e
+. "$(dirname "$0")/_/husky.sh"
+
+npm run lint-staged
+
+#
+## A precommit hook that uses spotless to format only staged files
+#
+## It also supports partially stage files using the following steps:
+## 1. It stashed all the unstaged changes and then runs spotlessApply
+## 2. After spotless apply is finished it applyes the stashed changes back on the code (that is also formatted/changed by spotless)
+## 3. All the files that have conflicts due to the stash apply, it merges the conflict with the changes that are coming from the stash to not loose any new changes that were not staged
+#
+#
+## stash any unstaged changes
+#STASHED_HASH=$(git stash create)
+#
+#if [ -n "$STASHED_HASH" ]
+#then
+#      git stash store $STASHED_HASH;
+#      git checkout -- .
+#fi
+#
+#
+#filesToFormat="$(git --no-pager diff --name-only --diff-filter=AM --no-color --cached)"
+#
+#printf "\n~~~ Spotless Starting ~~~"
+#printf "\nSpotless: Files to check"
+#
+#delimComma=""
+#joinedForSpotless=""
+#for item in $filesToFormat; do
+#  printf "\n* %s" "$item"
+#  joinedForSpotless="$joinedForSpotless$delimComma$(pwd)/$item"
+#  delimComma=","
+#done
+#
+#printf $joinedForSpotless
+#
+#printf "\n\nSpotless: Starting to format dirty files\n\n"
+#
+#./mvnw spotless:apply -DspotlessFiles="$joinedForSpotless"
+#
+#for file in $filesToFormat; do
+#  if test -f "$file"; then
+#    git add "$file"
+#  fi
+#done
+#
+#if [ -n "$STASHED_HASH" ]
+#then
+#      echo "$(git stash apply -q)"
+#
+#      conflictedFiles="$(git diff --name-only --diff-filter=U)"
+#
+#      for conflictedFile in $conflictedFiles
+#      do
+#        git checkout --theirs "$(pwd)/$conflictedFile"
+#        git restore --staged  "$(pwd)/$conflictedFile"
+#      done
+#
+#      git stash drop -q
+#fi
+#
+#printf "\n~~~ Spotless Finished ~~~\n"

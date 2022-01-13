@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.controller.professor;
 
+
 import de.innovationhub.prox.professorprofileservice.application.exception.faculty.FacultyNotFoundException;
 import de.innovationhub.prox.professorprofileservice.application.exception.integrety.PathIdNotMatchingEntityIdException;
 import de.innovationhub.prox.professorprofileservice.application.exception.professor.ProfessorNotFoundException;

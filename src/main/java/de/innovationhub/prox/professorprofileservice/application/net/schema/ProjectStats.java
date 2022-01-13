@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.net.schema;
 
+
 import lombok.Data;
 
 @Data

@@ -24,6 +24,7 @@
 
 package de.innovationhub.prox.professorprofileservice.application.security;
 
+
 import de.innovationhub.prox.professorprofileservice.application.exception.security.RequestUserIdNotFoundException;
 import java.util.Optional;
 import java.util.UUID;

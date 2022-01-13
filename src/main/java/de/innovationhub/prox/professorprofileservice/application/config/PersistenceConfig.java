@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.config;
 
+
 import de.innovationhub.prox.professorprofileservice.application.security.KeycloakAuditorAware;
 import java.util.UUID;
 import org.springframework.context.annotation.Bean;

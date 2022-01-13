@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.repository;
 
+
 import de.innovationhub.prox.professorprofileservice.domain.professor.ProfessorImageRepository;
 import de.innovationhub.prox.professorprofileservice.util.ImageUtils;
 import java.io.IOException;

@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.service.faculty;
 
+
 import de.innovationhub.prox.professorprofileservice.domain.faculty.Faculty;
 import java.io.IOException;
 import java.util.LinkedHashMap;

@@ -1,5 +1,6 @@
 package de.innovationhub.prox.professorprofileservice.application.security;
 
+
 import java.util.Optional;
 import java.util.UUID;
 import org.keycloak.KeycloakSecurityContext;
