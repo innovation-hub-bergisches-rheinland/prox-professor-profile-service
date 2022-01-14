@@ -235,10 +235,9 @@ jobs:
           username: ${{ secrets.QUAY_IO_USERNAME }}
           password: ${{ secrets.QUAY_IO_PASSWORD }}
 
-      - name: Get Project version
-        id: project
-        run: |
-          echo ::set-output name=version::$(mvn -Dexec.executable='echo' -Dexec.args='${project.version}' --non-recursive exec:exec -q)
+      - name: Get the version
+        id: get_version
+        run: echo ::set-output name=VERSION::${GITHUB_REF/refs\/tags\/v/}
 
       - name: Download build
         uses: actions/download-artifact@v2
@@ -248,12 +247,12 @@ jobs:
 
       - name: Maven Deploy
         run: |
-          mvn -nsu -B -e -Prelease -DskipTests -Djib.to.tags=latest,${{ steps.project.outputs.version }} deploy
+          mvn -nsu -B -e -Prelease -DskipTests -Djib.to.tags=latest,${{ steps.get_version.outputs.version }} deploy
 
       - name: Publish Helm charts
         uses: stefanprodan/helm-gh-pages@master
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           charts_dir: ./deploy/charts
-          app_version: ${{ steps.project.outputs.version }}
-          chart_version: ${{ steps.project.outputs.version }}
+          app_version: ${{ steps.get_version.outputs.version }}
+          chart_version: ${{ steps.get_version.outputs.version }}
