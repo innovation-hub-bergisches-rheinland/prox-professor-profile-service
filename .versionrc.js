@@ -9,9 +9,9 @@ module.exports = {
       type: "plain-text",
     },
     {
-      filename: './deploy/charts/prox-professor-profile-service/Chart.yaml',
+      filename: "./deploy/charts/prox-professor-profile-service/Chart.yaml",
       updater:
-          './node_modules/@map-colonies/standard-version-update-helm-version/src/index.js'
+        "./node_modules/@map-colonies/standard-version-update-helm-version/src/index.js",
     },
     {
       filename: "package.json",
