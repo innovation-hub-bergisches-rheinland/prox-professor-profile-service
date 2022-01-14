@@ -85,3 +85,6 @@ config:
   # The name of the config map to use.
   # If not set a default config map will be created
   existingConfigMap: ""
+  # The name of the secret to use.
+  # If not set a default secret will be created
+  existingSecret: ""

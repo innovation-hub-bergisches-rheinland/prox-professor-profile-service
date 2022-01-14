@@ -60,3 +60,27 @@ Create the name of the service account to use
 {{- default "default" .Values.serviceAccount.name }}
 {{- end }}
 {{- end }}
+
+{{/*
+Looks if there's an existing secret and reuse its password. If not it generates a new password and uses it.
+*/}}
+{{- define "prox-professor-profile-service.superUserPassword" -}}
+{{- $secret := (lookup "v1" "Secret" .Release.Namespace (include "prox-professor-profile-service.fullname" .) ) -}}
+  {{- if $secret -}}
+    {{-  index $secret "data" "superUserPassword" -}}
+  {{- else -}}
+    {{- (randAlphaNum 40) | b64enc | quote -}}
+  {{- end -}}
+{{- end -}}
+
+{{/*
+Looks if there's an existing secret and reuse its password. If not it generates a new password and uses it.
+*/}}
+{{- define "prox-professor-profile-service.replicationUserPassword" -}}
+{{- $secret := (lookup "v1" "Secret" .Release.Namespace (include "prox-professor-profile-service.fullname" .) ) -}}
+  {{- if $secret -}}
+    {{-  index $secret "data" "replicationUserPassword" -}}
+  {{- else -}}
+    {{- (randAlphaNum 40) | b64enc | quote -}}
+  {{- end -}}
+{{- end -}}
