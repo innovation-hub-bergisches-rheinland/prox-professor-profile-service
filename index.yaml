@@ -2,6 +2,16 @@ apiVersion: v1
 entries:
   prox-professor-profile-service:
   - apiVersion: v2
+    appVersion: 1.0.3
+    created: "2022-02-15T17:08:34.732181637Z"
+    description: A Helm chart for Kubernetes
+    digest: 26dcdc20e95f9e91bf6836a806ff5048ec8952108074877b76d2c470d6315505
+    name: prox-professor-profile-service
+    type: application
+    urls:
+    - https://innovation-hub-bergisches-rheinland.github.io/prox-professor-profile-service/prox-professor-profile-service-1.0.3.tgz
+    version: 1.0.3
+  - apiVersion: v2
     appVersion: 1.0.2
     created: "2022-01-14T15:06:29.947197371Z"
     description: A Helm chart for Kubernetes
@@ -21,4 +31,4 @@ entries:
     urls:
     - https://innovation-hub-bergisches-rheinland.github.io/prox-professor-profile-service/prox-professor-profile-service-1.0.0.tgz
     version: 1.0.0
-generated: "2022-01-14T15:06:29.946191063Z"
+generated: "2022-02-15T17:08:34.73146384Z"
