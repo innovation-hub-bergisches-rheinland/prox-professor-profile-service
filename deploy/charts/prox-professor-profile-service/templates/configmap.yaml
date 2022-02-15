@@ -21,7 +21,7 @@ data:
       realm: archilab
       resource: prox-professor-profile-service
     server:
-      port: 9005
+      port: 8080
       forward-headers-strategy: native
     spring:
       application:
