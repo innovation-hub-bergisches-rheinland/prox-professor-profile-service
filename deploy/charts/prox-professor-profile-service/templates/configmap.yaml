@@ -7,12 +7,6 @@ metadata:
     {{- include "prox-professor-profile-service.labels" . | nindent 4 }}
 data:
   application.yml: |-
-    eureka:
-      client:
-        serviceUrl:
-          defaultZone: http://prox-service-discovery:8761/eureka/
-      instance:
-        hostname: prox-professor-profile-service
     keycloak:
       auth-server-url: https://login.aws.innovation-hub.de/auth
       bearer-only: true
@@ -41,4 +35,8 @@ data:
     springdoc:
       # By default Springdoc will remove schemas which do not have references.
       remove-broken-reference-definitions: false
+    prox:
+      services:
+        project-service:
+          url: https://api.prox.aws.innovation-hub.de
   {{- end }}
