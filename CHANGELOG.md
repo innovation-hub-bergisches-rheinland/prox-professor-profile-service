@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.4](https://github.com/innovation-hub-bergisches-rheinland/prox-professor-profile-service/compare/v1.0.3...v1.0.4) (2022-03-30)
+
+
+### Bug Fixes
+
+* temporary fix for SpringShell ([090383a](https://github.com/innovation-hub-bergisches-rheinland/prox-professor-profile-service/commit/090383a93902688e7b81628a0df1fdb94b4a4091))
+
 ### [1.0.3](https://github.com/innovation-hub-bergisches-rheinland/prox-professor-profile-service/compare/v1.0.2...v1.0.3) (2022-02-15)
 
 

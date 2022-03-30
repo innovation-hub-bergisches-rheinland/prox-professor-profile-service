@@ -1,7 +1,7 @@
 {
   "name": "prox-professor-profile-service",
   "private": true,
-  "version": "1.0.3",
+  "version": "1.0.4",
   "scripts": {
     "prepare": "husky install",
     "lint-staged": "lint-staged",
