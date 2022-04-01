@@ -374,6 +374,10 @@
                     <include>*.yml</include>
                     <include>*.yaml</include>
                   </includes>
+                  <excludes>
+                    <exclude>CHANGELOG.md</exclude>
+                    <exclude>version.txt</exclude>
+                  </excludes>
                   <prettier>
                     <prettierVersion>2.4.1</prettierVersion>
                   </prettier>
