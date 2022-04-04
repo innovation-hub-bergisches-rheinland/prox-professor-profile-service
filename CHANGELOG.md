@@ -2,6 +2,15 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [1.0.6](https://github.com/innovation-hub-bergisches-rheinland/prox-professor-profile-service/compare/v1.0.5...v1.0.6) (2022-04-04)
+
+### [1.0.5](https://github.com/innovation-hub-bergisches-rheinland/prox-professor-profile-service/compare/v1.0.4...v1.0.5) (2022-04-01)
+
+
+### Bug Fixes
+
+* prevent helm release timeouts ([5291055](https://github.com/innovation-hub-bergisches-rheinland/prox-professor-profile-service/commit/529105583ab6b3962d339a05ef896733f0da7d48))
+
 ### [1.0.4](https://github.com/innovation-hub-bergisches-rheinland/prox-professor-profile-service/compare/v1.0.3...v1.0.4) (2022-03-30)
 
 

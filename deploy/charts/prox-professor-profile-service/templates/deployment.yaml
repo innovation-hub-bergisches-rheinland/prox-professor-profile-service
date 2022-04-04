@@ -5,6 +5,11 @@ metadata:
   labels:
     {{- include "prox-professor-profile-service.labels" . | nindent 4 }}
 spec:
+  # Workaround to prevent Helm release timeouts. Rolling updates of single replica deployments in combination with ReadWriteOnce PVCs
+  # lead to a scenario where the new pod will never start successfully since it fails to attach to the PVC that is still used by the
+  # old pod. The recreate strategy kills the old pod before starting the new one.
+  strategy:
+    type: Recreate
   {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
   {{- end }}
