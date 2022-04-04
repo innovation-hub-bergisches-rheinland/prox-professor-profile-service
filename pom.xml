@@ -390,9 +390,6 @@
     </profile>
     <profile>
       <id>ci</id>
-    </profile>
-    <profile>
-      <id>release</id>
       <build>
         <plugins>
           <plugin>
@@ -411,6 +408,25 @@
                 <phase>deploy</phase>
               </execution>
             </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.sonarsource.scanner.maven</groupId>
+            <artifactId>sonar-maven-plugin</artifactId>
+            <version>3.9.1.2184</version>
+            <!-- will be called manually in workflow -->
+            <configuration>
+              <skip>true</skip>
+            </configuration>
+          </plugin>
+          <plugin>
+            <groupId>com.diffplug.spotless</groupId>
+            <artifactId>spotless-maven-plugin</artifactId>
+            <version>${spotless-maven-plugin.version}</version>
+            <!-- will be called manually in workflow -->
+            <configuration>
+              <checkSkip>true</checkSkip>
+              <applySkip>true</applySkip>
+            </configuration>
           </plugin>
         </plugins>
       </build>
